@@ -14,12 +14,9 @@ i18n.configure
 i18n.setLocale(window.language)
 
 if config.get('plugin.Translator.enable', true)
-  window.addEventListener 'game.response', (e) ->
-    switch e.detail.path
-      when "/kcsapi/api_req_member/get_incentive"
-        for ship, index in window.$ships
-          window.$ships[index]?.api_name = __ ship.api_name
-
+  window.addEventListener 'initialize.complete', (e) ->
+    for ship, index in window.$ships
+      window.$ships[index]?.api_name = __ ship.api_name
 module.exports =
   name: 'Translator'
   author: [<a key={0} href="https://github.com/KochiyaOcean">KochiyaOcean</a>]
