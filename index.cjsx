@@ -3,7 +3,7 @@ i18n = require 'i18n'
 path = require 'path'
 Promise = require 'bluebird'
 async = Promise.coroutine
-TRANSLATOR_VERSION = 'v0.0.1'
+TRANSLATOR_VERSION = 'v0.0.2'
 i18n.configure
   locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
   defaultLocale: 'zh-CN',
@@ -39,9 +39,10 @@ if config.get('plugin.Translator.enable', true)
     for useitem, index in window.$useitems
       window.$useitems[index]?.api_name = __ useitem.api_name
 module.exports =
-  name: 'Translator'
-  author: [<a key={0} href="https://github.com/KochiyaOcean">KochiyaOcean</a>]
+  name: __ 'Translator'
+  link: "https://github.com/KochiyaOcean"
+  author: 'KochiyaOcean'
   displayName: <span><FontAwesome key={0} name='language' /> {__ ('Translator')}</span>
-  description: '汇报建造数据、海域掉落数据、开发数据'
+  description: __ 'Translate ships\' \& equipments\' name into English'
   show: false
   version: TRANSLATOR_VERSION
