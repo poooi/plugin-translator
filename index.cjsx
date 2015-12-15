@@ -3,7 +3,7 @@ i18n = require 'i18n'
 path = require 'path'
 Promise = require 'bluebird'
 async = Promise.coroutine
-TRANSLATOR_VERSION = 'v0.1.0'
+TRANSLATOR_VERSION = 'v0.1.1'
 i18n.configure
   locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
   defaultLocale: 'zh-CN',
@@ -14,6 +14,8 @@ i18n.configure
 i18n.setLocale(window.language)
 
 if config.get('plugin.Translator.enable', true)
+  window.translate = (str, locale) ->
+    return __ {phrase: str, locale: if locale? then locale else window.language}
   window.addEventListener 'initialize.complete', (e) ->
     for ship, index in window.$ships
       window.$ships[index]?.api_name = __ ship.api_name
@@ -39,8 +41,6 @@ if config.get('plugin.Translator.enable', true)
     for useitem, index in window.$useitems
       window.$useitems[index]?.api_name = __ useitem.api_name
 
-    window.translate = (str, locale) ->
-      return __ {phrase: str, locale: if locale? then locale else window.language}
 
 module.exports =
   name: __ 'Translator'
