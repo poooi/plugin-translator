@@ -3,7 +3,7 @@ i18n = require 'i18n'
 path = require 'path'
 Promise = require 'bluebird'
 async = Promise.coroutine
-TRANSLATOR_VERSION = 'v0.0.2'
+TRANSLATOR_VERSION = 'v0.1.0'
 i18n.configure
   locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
   defaultLocale: 'zh-CN',
@@ -38,6 +38,10 @@ if config.get('plugin.Translator.enable', true)
 
     for useitem, index in window.$useitems
       window.$useitems[index]?.api_name = __ useitem.api_name
+
+    window.translate = (str, locale) ->
+      return __ {phrase: str, locale: if locale? then locale else window.language}
+
 module.exports =
   name: __ 'Translator'
   link: "https://github.com/KochiyaOcean"
