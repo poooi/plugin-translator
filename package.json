@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-translator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Translate package into English.",
   "main": "index.cjsx",
   "scripts": {
@@ -21,6 +21,5 @@
   "readme": "# plugin-translator\nTranslate package into English.\n",
   "readmeFilename": "README.md",
   "dependencies": {
-    "i18n": "^0.5.0"
   }
 }
