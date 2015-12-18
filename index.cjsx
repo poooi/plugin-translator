@@ -47,7 +47,7 @@ if config.get('plugin.Translator.enable', true)
 
 
 module.exports =
-  name: __ 'Translator'
+  name: 'Translator'
   link: "https://github.com/KochiyaOcean"
   author: 'KochiyaOcean'
   displayName: <span><FontAwesome key={0} name='language' /> {__ ('Translator')}</span>
