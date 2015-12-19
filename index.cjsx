@@ -2,7 +2,7 @@ path = require 'path'
 Promise = require 'bluebird'
 async = Promise.coroutine
 glob = require 'glob'
-TRANSLATOR_VERSION = 'v0.2.0'
+TRANSLATOR_VERSION = 'v0.2.1'
 
 if !window.i18n?
   window.i18n = {}
@@ -44,7 +44,7 @@ if config.get('plugin.Translator.enable', true)
     return str
   window.i18n.resources.setLocale = (locale) =>
     for namespace of resourceI18n
-      resourceI18n.setLocale locale
+      resourceI18n[namespace].setLocale locale
 module.exports =
   name: 'Translator'
   link: "https://github.com/KochiyaOcean"
