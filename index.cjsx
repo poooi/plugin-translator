@@ -1,56 +1,55 @@
 path = require 'path'
 Promise = require 'bluebird'
 async = Promise.coroutine
-TRANSLATOR_VERSION = 'v0.1.3'
+glob = require 'glob'
+TRANSLATOR_VERSION = 'v0.2.0'
 
 if !window.i18n?
   window.i18n = {}
+
 window.i18n.translator = new (require 'i18n-2')
   locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
   defaultLocale: 'zh-CN',
-  directory: path.join(__dirname, 'i18n'),
+  directory: path.join(__dirname, 'i18n', 'translator'),
   updateFiles: false,
   indent: "\t",
   extension: '.json'
   devMode: false
 window.i18n.translator.setLocale(window.language)
-__ = i18n.translator.__.bind(i18n.translator)
-__n = i18n.translator.__n.bind(i18n.translator)
 
 if config.get('plugin.Translator.enable', true)
-  window.translate = (str, locale) ->
-    return i18n.translator.translate "#{(if locale? then locale else window.language)}", str
-  window.addEventListener 'initialize.complete', (e) ->
-    for ship, index in window.$ships
-      window.$ships[index]?.api_name = __ ship.api_name
-
-    for shipType, index in window.$shipTypes
-      window.$shipTypes[index]?.api_name = __ shipType.api_name
-
-    for slotitem, index in window.$slotitems
-      window.$slotitems[index]?.api_name = __ slotitem.api_name
-
-    for slotitemType, index in window.$slotitemTypes
-      window.$slotitemTypes[index]?.api_name = __ slotitemType.api_name
-
-    for maparea, index in window.$mapareas
-      window.$mapareas[index]?.api_name = __ maparea.api_name
-
-    for map, index in window.$maps
-      window.$maps[index]?.api_name = __ map.api_name
-
-    for mission, index in window.$missions
-      window.$missions[index]?.api_name = __ mission.api_name
-
-    for useitem, index in window.$useitems
-      window.$useitems[index]?.api_name = __ useitem.api_name
-
-
+  i18nFiles = glob.sync(path.join(__dirname, 'i18n', '*'))
+  resourceI18n = {}
+  for i18nFile in i18nFiles
+    namespace = path.basename i18nFile
+    if namespace != 'translator'
+      resourceI18n[namespace] = new (require 'i18n-2')
+        locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
+        defaultLocale: 'zh-CN',
+        directory: i18nFile,
+        updateFiles: false,
+        indent: "\t",
+        extension: '.json'
+        devMode: false
+      resourceI18n[namespace].setLocale(window.language)
+  window.i18n.resources.__ = (str) =>
+    for namespace of resourceI18n
+      if str != resourceI18n[namespace].__ str
+        return resourceI18n[namespace].__ str
+    return str
+  window.i18n.resources.translate = (locale, str) =>
+    for namespace of resourceI18n
+      if str != resourceI18n[namespace].translate locale, str
+        return resourceI18n[namespace].translate locale, str
+    return str
+  window.i18n.resources.setLocale = (locale) =>
+    for namespace of resourceI18n
+      resourceI18n.setLocale locale
 module.exports =
   name: 'Translator'
   link: "https://github.com/KochiyaOcean"
   author: 'KochiyaOcean'
-  displayName: <span><FontAwesome key={0} name='language' /> {__ ('Translator')}</span>
-  description: __ 'Translate ships\' \& equipments\' name into English'
+  displayName: <span><FontAwesome key={0} name='language' /> {window.i18n.translator.__ ('Translator')}</span>
+  description: window.i18n.translator.__ 'Translate ships\' \& equipments\' name into English'
   show: false
   version: TRANSLATOR_VERSION
