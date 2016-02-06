@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-translator",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Translate package into English.",
   "main": "index.cjsx",
   "scripts": {
