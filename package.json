@@ -28,7 +28,7 @@
   ],
   "poiPlugin": {
     "title": "Translator",
-    "description": "Translate ships & equipments name into English",
+    "description": "Translate ships' & equipments' name into English",
     "icon": "fa/language",
     "i18nDir": "i18n/translator"
   }
