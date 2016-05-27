@@ -11,7 +11,7 @@ module.exports =
       window.i18n = {}
 
     window.i18n.translator = new (require 'i18n-2')
-      locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
+      locales:['ko-KR', 'en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
       defaultLocale: 'zh-CN',
       directory: path.join(__dirname, 'i18n', 'translator'),
       updateFiles: false,
@@ -25,7 +25,7 @@ module.exports =
       namespace = path.basename i18nFile
       if namespace != 'translator'
         resourceI18n[namespace] = new (require 'i18n-2')
-          locales:['en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
+          locales:['ko-KR', 'en-US', 'ja-JP', 'zh-CN', 'zh-TW'],
           defaultLocale: 'zh-CN',
           directory: i18nFile,
           updateFiles: false,
