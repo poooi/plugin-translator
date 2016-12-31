@@ -48,5 +48,9 @@
   "陸上攻撃機": "Land-based Attack Aircraft",
   "局地戦闘機": "Interceptor Fighter",
   "大型電探（II）": "大型電探（II）",
-  "艦上偵察機（II）": "艦上偵察機（II）"
+  "艦上偵察機（II）": "艦上偵察機（II）",
+  "噴式戦闘機": "Jet-powered Fighter",
+  "噴式戦闘爆撃機": "Jet-powered Fighter-Bomber",
+  "噴式攻撃機": "Jet-powered Torpedo-Bomber",
+  "噴式偵察機": "Jet-powered Reconnaissance Aircraft"
 }
