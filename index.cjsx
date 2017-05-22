@@ -34,6 +34,7 @@ module.exports =
           devMode: false
         resourceI18n[namespace].setLocale(window.language)
     window.i18n.resources.__ = (str) =>
+      return String(str) if !str
       for namespace of resourceI18n
         if str != resourceI18n[namespace].__ str
           return resourceI18n[namespace].__ str
