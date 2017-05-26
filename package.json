@@ -31,5 +31,11 @@
     "description": "Translate ships' & equipments' name into English or Korean",
     "icon": "fa/language",
     "i18nDir": "i18n/translator"
+  },
+  "devDependencies": {
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb-base": "^11.2.0",
+    "eslint-plugin-import": "^2.3.0"
   }
 }
