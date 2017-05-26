@@ -53,6 +53,9 @@ export const pluginDidLoad = () => {
     return result
   }
   window.i18n.resources.translate = (locale, str) => {
+    if (!isString(str)) {
+      return String(str)
+    }
     let result = str
     forEach(resourceI18n, (namespace) => {
       if (str !== namespace.translate(locale, str)) {
