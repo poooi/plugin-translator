@@ -2,8 +2,11 @@
   "name": "poi-plugin-translator",
   "version": "0.10.0",
   "description": "Translate package into English.",
-  "main": "index.cjsx",
+  "main": "index.js",
   "scripts": {
+    "reset": "git clean -f && git checkout .",
+    "prepack": "poi-util-transpile --sm --replace",
+    "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -30,12 +33,16 @@
     "title": "Translator",
     "description": "Translate ships' & equipments' name into English or Korean",
     "icon": "fa/language",
-    "i18nDir": "i18n/translator"
+    "i18nDir": "i18n/translator",
+    "apiVer": {
+      "7.5.99": "0.10.0"
+    }
   },
   "devDependencies": {
-    "babel-eslint": "^7.2.3",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.2.0",
-    "eslint-plugin-import": "^2.3.0"
+    "babel-eslint": "^8.0.1",
+    "eslint": "^4.8.0",
+    "eslint-config-airbnb-base": "^12.0.2",
+    "eslint-plugin-import": "^2.7.0",
+    "poi-util-transpile": "^7.6.2"
   }
 }
