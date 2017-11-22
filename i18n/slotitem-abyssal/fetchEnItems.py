@@ -39,11 +39,18 @@ def table_to_list(table):
 
 # Formula for valid quest id
 valid_id = re.compile('[0-9]+')
+split_name = re.compile('([-A-Za-z 0-9]+)')
+
+def split_name(bothname):
+
+    a, b, *_ = split_name.split(wiki_id)
+    print(a, b)
+    return a.upper() + str(int(b))
 
 
 def getWikiQuestInfo():
     # Get HTML page
-    rsp = requests.get('http://kancolle.wikia.com/wiki/Ship_list')
+    rsp = requests.get('http://kancolle.wikia.com/wiki/List_of_equipment_used_by_the_enemy')
     soup = BeautifulSoup(rsp.text, "html.parser")
 
     # Get all quest tables
@@ -53,8 +60,8 @@ def getWikiQuestInfo():
     rows = [row for table in tables for row in table_to_list(table) if valid_id.match(row[0].text)]
 
     # ID, prereq
-    info = sorted([(int(row[0].text), list(row[1].strings)[0:2]) for row in rows])
-    name_table = OrderedDict([(jp_name.strip(), en_name.strip()) for (_, [en_name, jp_name]) in info if jp_name.strip()])
+    info = sorted([(int(row[0].text), list(row[2].strings)[-2:]) for row in rows])
+    name_table = OrderedDict([(jp_name.strip(), en_name.strip()) for (_, [en_name, jp_name]) in info])
     return name_table
 
 
