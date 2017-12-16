@@ -216,6 +216,7 @@
   "Ro.44水上戦闘機bis": "Ro.44 Seaplane Fighter bis",
   "二式水戦改(熟練)": "Type 2 Seaplane Fighter Kai (Skilled)",
   "強風改": "Kyoufuu Kai",
+  "四式戦 疾風": "Type 4 Fighter Hayate",
   "零式艦戦63型(爆戦)": "Type 0 Fighter Model 63 (Fighter-bomber)",
   "8cm高角砲改+増設機銃": "8cm High-angle Gun Kai + Additional Machine Guns",
   "一式戦 隼II型": "Type 1 Fighter Hayabusa Model II",
@@ -236,6 +237,7 @@
   "41cm三連装砲改": "41cm Triple Gun Mount Kai",
   "瑞雲(六三四空/熟練)": "Zuiun (634 Air Group/Skilled)",
   "零式水上偵察機11型乙": "Type 0 Reconnaissance Seaplane Model 11B",
+  "零式水上偵察機11型乙(熟練)": "Type 0 Reconnaissance Seaplane Model 11B (Skilled)",
   "22号対水上電探改四(後期調整型)": "Type 22 Surface Radar Kai 4 (Calibrated Late Model)",
   "戦闘糧食(特別なおにぎり)": "Combat Ration (Special Onigiri)",
   "Swordfish": "Swordfish",
@@ -259,5 +261,10 @@
   "Type124 ASDIC": "Type124 ASDIC",
   "Type144/147 ASDIC": "Type144/147 ASDIC",
   "HF/DF + Type144/147 ASDIC": "HF/DF + Type144/147 ASDIC",
-  "12.7cm連装砲C型改二": "12.7cm Twin Gun Mount Model C Kai 2"
+  "12.7cm連装砲C型改二": "12.7cm Twin Gun Mount Model C Kai 2",
+  "北方迷彩(+北方装備)": "Arctic Camouflage (+ Arctic Equipment)",
+  "試製東海": "Prototype Toukai",
+  "東海(九〇一空)": "Toukai (901 Air Group)",
+  "紫電改四": "Shiden Kai 4",
+  "遊撃部隊 艦隊司令部": "Striking Force Fleet Command Facility"
 }
