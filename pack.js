@@ -6,8 +6,8 @@ const fs = require('fs')
 const LOCALES = ['ko-KR', 'en-US', 'ja-JP', 'zh-CN', 'zh-TW']
 
 LOCALES.forEach(locale => {
-  const i18nFiles = glob.sync(path.join(__dirname, 'i18n_source', '*', `{LOCALES}.json`))
-  const i18nFile = i18nFiles.map(p => {
+  const i18nFiles = glob.sync(path.join(__dirname, 'i18n_source', '*', `${locale}.json`))
+  const i18nContent = i18nFiles.map(p => {
     let ret
     try {
       ret = require(p)
@@ -16,7 +16,7 @@ LOCALES.forEach(locale => {
     }
     return ret
   }).reduce((a, b) => Object.assign({}, a, b))
-  fs.writeFileSync(path.join(__dirname, 'i18n', `{LOCALES}.json`), JSON.stringify(i18nFile))
+  fs.writeFileSync(path.join(__dirname, 'i18n', `${locale}.json`), JSON.stringify(i18nContent))
 })
 
 cp.exec('npm run compile', { cwd: __dirname })
