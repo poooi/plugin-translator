@@ -6,7 +6,7 @@
   "scripts": {
     "reset": "git clean -f && git checkout .",
     "compile": "poi-util-transpile --sm --replace",
-    "prepack": "node pack.js",
+    "prepack": "node pack.js && npm run compile",
     "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
