@@ -37,6 +37,7 @@ export const pluginDidLoad = () => {
   i18n.init({
     fallbackLng: false,
     resources: resourceI18n,
+    keySeparator: false,
   })
 
   window.i18n.resources = {
