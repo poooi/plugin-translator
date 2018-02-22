@@ -261,6 +261,7 @@
   "Type124 ASDIC": "Type124 ASDIC",
   "Type144/147 ASDIC": "Type144/147 ASDIC",
   "HF/DF + Type144/147 ASDIC": "HF/DF + Type144/147 ASDIC",
+  "紫電改(三四三空) 戦闘301": "Shiden Kai (343 Air Group) 301st Fighter Squadron",
   "12.7cm連装砲C型改二": "12.7cm Twin Gun Mount Model C Kai 2",
   "12.7cm連装砲D型改二": "12.7cm Twin Gun Mount Model D Kai 2",
   "北方迷彩(+北方装備)": "Arctic Camouflage (+ Arctic Equipment)",
@@ -270,6 +271,13 @@
   "遊撃部隊 艦隊司令部": "Striking Force Fleet Command Facility",
   "彩雲(偵四)": "Saiun (4th Recon Squad)",
   "12cm30連装噴進砲改二": "12cm 30-tube Rocket Launcher Kai Ni",
+  "10cm連装高角砲改+増設機銃": "10cm Twin High-angle Gun Mount Kai + Additional Machine Guns",
   "46cm三連装砲改": "46cm Triple Gun Mount Kai",
-  "FM-2": "FM-2"
+  "FM-2": "FM-2",
+  "SK レーダー": "SK Radar",
+  "SK&SG レーダー": "SK & SG Radar",
+  "QF 4.7inch砲 Mk.XII改": "QF 4.7inch Gun Mk.XII Kai",
+  "51cm連装砲": "51cm Twin Gun Mount",
+  "130mm B-13連装砲": "130mm B-13 Twin Gun Mount",
+  "533mm 三連装魚雷": "533mm Triple Torpedo Mount"
 }
