@@ -34,7 +34,8 @@ def fetch():
     info = sorted([extract_text(tag) for tag in tags])
     # print(info)
     damaged_info = [('{}-壊'.format(jp_name), '{} - Damaged'.format(en_name)) for jp_name, en_name in info if jp_name != '']
-    name_table = OrderedDict([(jp_name.strip(), en_name.strip()) for jp_name, en_name in info + damaged_info if jp_name != ''])
+    lm_info = [('{}後期型'.format(jp_name), '{} Late Model'.format(en_name)) for jp_name, en_name in info if jp_name != '']
+    name_table = OrderedDict([(jp_name.strip(), en_name.strip()) for jp_name, en_name in info + damaged_info + lm_info if jp_name != ''])
     return name_table
 
 
