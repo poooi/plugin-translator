@@ -11,7 +11,7 @@ Currently, ships and items could be automatically updated. Others are manually m
 
 The `update.sh` is the script to perform an update. It will crawl the Wikia pages and extract data from them. Python, `requests` and `beautifulsoup4` is required. Following instructions are recommended if you're not familiar with Python:
 
-- Make sure python > 3.3 is intalled
+- Make sure python > 3.3 is installed
 
 - under the project root folder, initiate python `venv`
     ```shell
