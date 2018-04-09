@@ -1,5 +1,5 @@
-const { isEmpty } = require('lodash')
-const { parse } = require('luaparse')
+import _, { isEmpty, map } from 'lodash'
+import { parse } from 'luaparse'
 
 const literalTypes = [
   'StringLiteral',
@@ -24,22 +24,19 @@ const fold = (o) => {
   }
   if (o.type === 'TableConstructorExpression') {
     if (o.fields[0] && o.fields[0].key) {
-      const x = {}
-      for (const f of o.fields) {
-        const { k, v } = fold(f)
-        // Wikia specific, skipping key = nil
-        if (v !== null) {
-          x[k] = v
-        }
-      }
+      const x = _(o.fields)
+        .map((f) => {
+          const { k, v } = fold(f)
+          return [k, v]
+        })
+        .filter(([, v]) => v !== null)
+        .fromPairs()
       return isEmpty(x) ? [] : x
     }
-    const x = []
-    for (const f of o.fields) {
+    return map(o.fields, (f) => {
       const v = fold(f)
-      x.push(v.__internal ? [v.k, v.v] : v)
-    }
-    return x
+      return v.__internal ? [v.k, v.v] : v
+    })
   }
   if (o.type === 'TableKey' || o.type === 'TableKeyString') {
     return { k: fold(o.key), v: fold(o.value), __internal: true }
@@ -59,4 +56,6 @@ const fold = (o) => {
   throw new Error(`lua/fold: unhandled type ${o.type}: ${JSON.stringify(o, null, 2).split('\n').slice(0, 50).join('\n')}`)
 }
 
-exports.luaToJson = lua => fold(parse(lua, { comments: false }))
+const luaToJson = lua => fold(parse(lua, { comments: false }))
+
+export default luaToJson

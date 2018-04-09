@@ -1,22 +1,22 @@
+import { readFileSync, readJsonSync, outputFileSync } from 'fs-extra'
+import { mapValues, invert } from 'lodash'
+import Bot from 'nodemw'
+
+import luaToJson from './lua'
+import mw from './mw'
+import { fail, writeJsonSync } from './utils'
+import config from './mw-config'
+import namespaces from './wikia-namespaces'
+
 const { spawnSync } = require('child_process')
-const { readFileSync, readJsonSync, outputFileSync } = require('fs-extra')
 const filenamify = require('filenamify')
-const { mapValues, invert } = require('lodash')
 const { eachLimit, mapValuesLimit, retryable } = require('async')
-
-const {
-  id, fail, writeJsonSync, getArgs,
-} = require('./utils')
-const { luaToJson } = require('./lua')
-const mw = require('./mw')
-
-const config = require('./mw-config')
 
 const dataDir = `${__dirname}/../data/wikia`
 
-const namespaces = require('./wikia-namespaces')
+const client = new Bot(config.bot)
 
-module.exports = (next, all = false, spawnLua = false) => mw(config, (bot) => {
+const fetch = (next, all = false, spawnLua = false) => mw(config, (bot) => {
   const fetchNamespaces = (next) => {
     bot.getSiteInfo(['namespaces'], (error, data) => {
       fail(error)
@@ -140,8 +140,3 @@ module.exports = (next, all = false, spawnLua = false) => mw(config, (bot) => {
   })
 })
 
-const args = getArgs(['run', 'all', 'spawnLua'])
-
-if (args.run) {
-  module.exports(id, args.all, args.spawnLua)
-}
