@@ -43,11 +43,18 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-beta.44",
+    "@babel/preset-env": "^7.0.0-beta.44",
+    "@babel/preset-stage-0": "^7.0.0-beta.44",
+    "@babel/register": "^7.0.0-beta.44",
     "babel-eslint": "^8.0.1",
+    "bluebird": "^3.5.1",
     "eslint": "^4.8.0",
     "eslint-config-airbnb-base": "^12.0.2",
     "eslint-plugin-import": "^2.7.0",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2",
+    "lodash": "^4.17.5",
     "luaparse": "^0.2.1",
     "nodemw": "^0.12.0",
     "poi-util-transpile": "^7.6.2"
