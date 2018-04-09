@@ -48,6 +48,8 @@
     "eslint-config-airbnb-base": "^12.0.2",
     "eslint-plugin-import": "^2.7.0",
     "glob": "^7.1.2",
+    "luaparse": "^0.2.1",
+    "nodemw": "^0.12.0",
     "poi-util-transpile": "^7.6.2"
   }
 }
