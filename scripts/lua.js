@@ -31,6 +31,8 @@ const fold = (o) => {
         })
         .filter(([, v]) => v !== null)
         .fromPairs()
+        .value()
+
       return isEmpty(x) ? [] : x
     }
     return map(o.fields, (f) => {

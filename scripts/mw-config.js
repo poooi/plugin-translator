@@ -1,12 +1,15 @@
 module.exports = {
-  modules: {
+  categories: {
     ships: 'Player ship modules',
-    enemies: 'Enemy ship modules',
-    bosses: { category: 'Enemy boss ship modules', move_to: 'enemies' },
-    equipment: 'Equipment modules',
-    enemy_equipment: 'Enemy equipment modules',
-    items: 'Item modules',
+    'ship-abyssal': 'Enemy ship modules',
+    bosses: 'Enemy boss ship modules',
+    slotitem: 'Equipment modules',
+    'slotitem-abyssal': 'Enemy equipment modules',
+    useitem: 'Item modules',
     misc: 'Misc data modules',
+  },
+  merge: {
+    bosses: 'ship-abyssal',
   },
   bot: {
     protocol: 'https',
