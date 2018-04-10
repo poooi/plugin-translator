@@ -1,9 +1,10 @@
 import { outputJson } from 'fs-extra'
-import _, { filter, flatMap, isObject } from 'lodash'
+import _, { filter, flatMap, isObject, each, merge, omit, values, keyBy } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
 import filenamify from 'filenamify'
+import fetch from 'node-fetch'
 
 import luaToJson from './lua'
 import config from './mw-config'
@@ -23,18 +24,17 @@ const extractName = (data) => {
     return []
   }
   const name = _suffix ? `${_name} ${_suffix}` : _name
-
   return [[jpName, name]]
 }
 
 const main = async () => {
-  const ns = await bot.getSiteInfoAsync(['namespaces'])
-  const nsData = _(ns.namespaces)
-    .map(n => ([n.canonical, n.id]))
-    .fromPairs()
-    .value()
+  // const ns = await bot.getSiteInfoAsync(['namespaces'])
+  // const nsData = _(ns.namespaces)
+  //   .map(n => ([n.canonical, n.id]))
+  //   .fromPairs()
+  //   .value()
 
-  await outputJson(path.resolve(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
+  // await outputJson(path.resolve(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
 
   const pages = await Promise.map(
     Object.keys(config.categories),
@@ -54,8 +54,9 @@ const main = async () => {
         p,
         async ({ title }) => {
           const data = await bot.getArticleAsync(title)
-          await outputJson(path.resolve(__dirname, `./articles/${name}/${filenamify(title.replace('Module:', ''))}.json`), luaToJson(data), { spaces: 2 })
-          return luaToJson(data)
+          const article = luaToJson(data)
+          await outputJson(path.resolve(__dirname, `./articles/${name}/${filenamify(title.replace('Module:', ''))}.json`), article, { spaces: 2 })
+          return article
         },
         {
           concurrency: 5,
@@ -65,7 +66,7 @@ const main = async () => {
     }
   )
 
-  const result = _(db)
+  let result = _(db)
     .map(([name, articles]) => (
       [
         name,
@@ -77,7 +78,42 @@ const main = async () => {
     .fromPairs()
     .value()
 
-  await outputJson('./res.json', result, { spaces: 2 })
+  // merge boss resources into ship-abyssal
+  each(Object.keys(config.merge), (source) => {
+    const dest = result[config.merge[source]]
+    result[config.merge[source]] = merge(dest, result[source])
+    result = omit(result, source)
+  })
+
+  // processing misc data
+  result = omit(result, 'misc')
+  const resp = await fetch('http://api.kcwiki.moe/start2')
+  const start2 = await resp.json()
+
+  const itemTypes = keyBy(start2.api_mst_slotitem_equiptype, 'api_id')
+  const shipTypes = keyBy(start2.api_mst_stype, 'api_id')
+
+  const itemTypesWikia = luaToJson(await bot.getArticleAsync('Module:EquipmentTypes'))
+  const shipTypesWikia = luaToJson(await bot.getArticleAsync('Module:ShipTypes'))
+
+  result['slotitem-type'] = _(itemTypesWikia)
+    .entries()
+    .map(([id, name]) => ([itemTypes[id]?.api_name, name]))
+    .fromPairs()
+    .value()
+
+  result['ship-type'] = _(shipTypesWikia)
+    .entries()
+    .map(([id, name]) => ([shipTypes[id]?.api_name, name]))
+    .fromPairs()
+    .value()
+
+  await Promise.map(
+    Object.keys(result),
+    name => outputJson(path.resolve(__dirname, `../i18n_source/${name}/en-US.json`), result[name], { spaces: 2 }),
+  )
+
+  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(values(result)))
 }
 
 try {
