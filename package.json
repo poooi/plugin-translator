@@ -49,6 +49,7 @@
     "@babel/register": "^7.0.0-beta.44",
     "babel-eslint": "^8.0.1",
     "bluebird": "^3.5.1",
+    "chalk": "^2.3.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.10.0",
@@ -58,6 +59,8 @@
     "luaparse": "^0.2.1",
     "node-fetch": "^2.1.2",
     "nodemw": "^0.12.0",
-    "poi-util-transpile": "^7.6.2"
+    "poi-util-transpile": "^7.6.2",
+    "progress": "^2.0.0",
+    "yargs-parser": "^10.0.0"
   }
 }

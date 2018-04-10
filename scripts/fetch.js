@@ -1,17 +1,32 @@
-import { outputJson } from 'fs-extra'
+/**
+ * usage: node fetch.js [--all]
+ * Supported args:
+ * all: if true, redownloads all pages
+ */
+
+import { outputJson, pathExists, readJson } from 'fs-extra'
 import _, { filter, flatMap, isObject, each, merge, omit, values, keyBy } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
 import filenamify from 'filenamify'
 import fetch from 'node-fetch'
+import ProgressBar from 'progress'
+import yargsParser from 'yargs-parser'
+import chalk from 'chalk'
 
 import luaToJson from './lua'
 import config from './mw-config'
 
+const args = yargsParser(process.argv.slice(2))
+
 const bot = new Bot(config.bot)
 promisifyAll(bot)
 
+/**
+ * extracts Japanese names and English ones from wikia module data
+ * @param {Object} data Wikia module data
+ */
 const extractName = (data) => {
   if (!data._name) {
     if (isObject(data) && '' in data) {
@@ -27,6 +42,23 @@ const extractName = (data) => {
   return [[jpName, name]]
 }
 
+/**
+ * fetch an wikia article from disk or Internet, controlled by node args
+ * @param {String} cat Category
+ * @param {String} title Page title
+ */
+const fetchArticle = async (cat, title) => {
+  const file = path.resolve(__dirname, `./articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`)
+  const exist = await pathExists(file)
+  if (args.all || !exist) {
+    const data = await bot.getArticleAsync(title)
+    const article = luaToJson(data)
+    await outputJson(file, article, { spaces: 2 })
+    return article
+  }
+  return readJson(file)
+}
+
 const main = async () => {
   // const ns = await bot.getSiteInfoAsync(['namespaces'])
   // const nsData = _(ns.namespaces)
@@ -36,16 +68,28 @@ const main = async () => {
 
   // await outputJson(path.resolve(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
 
+  let total = 0
+
   const pages = await Promise.map(
     Object.keys(config.categories),
     async (name) => {
       const p = await bot.getPagesInCategoryAsync(config.categories[name])
-      return [name, filter(p, q => q.title.startsWith('Module:'))]
+      const modules = filter(p, q => q.title.startsWith('Module:'))
+      total += modules.length
+      return [name, modules]
     },
     {
-      concurrency: 3,
+      concurrency: 5,
     },
   )
+  console.log(chalk.blue(`${total} pages to gather.`))
+
+  const bar = new ProgressBar(chalk.blue('gathering [:bar] :percent :etas'), {
+    complete: '=',
+    incomplete: ' ',
+    width: 40,
+    total,
+  })
 
   const db = await Promise.map(
     pages,
@@ -53,9 +97,8 @@ const main = async () => {
       const articles = await Promise.map(
         p,
         async ({ title }) => {
-          const data = await bot.getArticleAsync(title)
-          const article = luaToJson(data)
-          await outputJson(path.resolve(__dirname, `./articles/${name}/${filenamify(title.replace('Module:', ''))}.json`), article, { spaces: 2 })
+          const article = await fetchArticle(name, title)
+          bar.tick(1)
           return article
         },
         {
@@ -65,7 +108,7 @@ const main = async () => {
       return [name, articles]
     },
     {
-      concurrency: 3,
+      concurrency: 5,
     },
   )
 
@@ -92,12 +135,14 @@ const main = async () => {
   result = omit(result, 'misc')
   const resp = await fetch('http://api.kcwiki.moe/start2')
   const start2 = await resp.json()
+  console.log(chalk.blue('downloaded start2 data.'))
 
   const itemTypes = keyBy(start2.api_mst_slotitem_equiptype, 'api_id')
   const shipTypes = keyBy(start2.api_mst_stype, 'api_id')
 
-  const itemTypesWikia = luaToJson(await bot.getArticleAsync('Module:EquipmentTypes'))
-  const shipTypesWikia = luaToJson(await bot.getArticleAsync('Module:ShipTypes'))
+  const itemTypesWikia = await fetchArticle('misc', 'Module:EquipmentTypes')
+  const shipTypesWikia = await fetchArticle('misc', 'Module:ShipTypes')
+  console.log(chalk.blue('gathered types data.'))
 
   result['slotitem-type'] = _(itemTypesWikia)
     .entries()
