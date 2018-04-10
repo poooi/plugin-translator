@@ -110,7 +110,7 @@ const main = async () => {
 
   await Promise.map(
     Object.keys(result),
-    name => outputJson(path.resolve(__dirname, `../i18n_source/${name}/en-US.json`), result[name], { spaces: 2 }),
+    name => outputJson(path.resolve(__dirname, `../i18n-source/${name}/en-US.json`), result[name], { spaces: 2 }),
   )
 
   await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(values(result)))
