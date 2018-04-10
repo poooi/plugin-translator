@@ -44,7 +44,7 @@ const main = async () => {
     },
     {
       concurrency: 3,
-    }
+    },
   )
 
   const db = await Promise.map(
@@ -59,11 +59,14 @@ const main = async () => {
           return article
         },
         {
-          concurrency: 5,
+          concurrency: 1,
         },
       )
       return [name, articles]
-    }
+    },
+    {
+      concurrency: 3,
+    },
   )
 
   let result = _(db)
