@@ -1,14 +1,31 @@
 import { outputJson } from 'fs-extra'
-import _, { filter } from 'lodash'
+import _, { filter, flatMap, isObject } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
+import filenamify from 'filenamify'
 
 import luaToJson from './lua'
 import config from './mw-config'
 
 const bot = new Bot(config.bot)
 promisifyAll(bot)
+
+const extractName = (data) => {
+  if (!data._name) {
+    if (isObject(data) && '' in data) {
+      return flatMap(data, extractName)
+    }
+    return []
+  }
+  const { _name, _japanese_name: jpName, _suffix } = data
+  if (!jpName) {
+    return []
+  }
+  const name = _suffix ? `${_name} ${_suffix}` : _name
+
+  return [[jpName, name]]
+}
 
 const main = async () => {
   const ns = await bot.getSiteInfoAsync(['namespaces'])
@@ -17,7 +34,7 @@ const main = async () => {
     .fromPairs()
     .value()
 
-  await outputJson(path.join(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
+  await outputJson(path.resolve(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
 
   const pages = await Promise.map(
     Object.keys(config.categories),
@@ -37,6 +54,7 @@ const main = async () => {
         p,
         async ({ title }) => {
           const data = await bot.getArticleAsync(title)
+          await outputJson(path.resolve(__dirname, `./articles/${name}/${filenamify(title.replace('Module:', ''))}.json`), luaToJson(data), { spaces: 2 })
           return luaToJson(data)
         },
         {
@@ -52,7 +70,7 @@ const main = async () => {
       [
         name,
         _(articles)
-          .map(({ _name, _japanese_name }) => ([_japanese_name, _name]))
+          .flatMap(extractName)
           .fromPairs()
           .value(),
       ]))
