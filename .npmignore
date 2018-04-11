@@ -1,2 +1,5 @@
-scripts/articles
+scripts
 i18n-source
+update.js
+.eslintrc.js
+.gitignore
