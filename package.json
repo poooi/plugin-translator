@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "reset": "git clean -f && git checkout .",
-    "compile": "poi-util-transpile --sm --replace",
-    "prepack": "node pack.js && npm run compile",
+    "prepack": "poi-util-transpile --sm --replace",
     "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
