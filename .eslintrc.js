@@ -44,4 +44,12 @@ module.exports = {
       'glob',
     ],
   },
+  overrides: [
+    {
+      files: ['scripts/*.js', 'update.js'],
+      rules: {
+        'import/no-extraneous-dependencies': ['error', { 'devDependencies': true }]
+      }
+    }
+  ],
 }
