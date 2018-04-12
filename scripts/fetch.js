@@ -161,7 +161,7 @@ const main = async () => {
     name => outputJson(path.resolve(__dirname, `../i18n-source/${name}/en-US.json`), result[name], { spaces: 2 }),
   )
 
-  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(values(result)))
+  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(...values(result)))
 }
 
 try {
