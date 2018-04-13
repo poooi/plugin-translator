@@ -23,22 +23,31 @@ const args = yargsParser(process.argv.slice(2))
 const bot = new Bot(config.bot)
 promisifyAll(bot)
 
+const fixApiYomi = string => string.replace(/\s?flagship/i, '').replace(/\s?elite/i, '')
+
+const fixEnemySuffix = suffix => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
+
 /**
  * extracts Japanese names and English ones from wikia module data
  * @param {Object} data Wikia module data
  */
-const extractName = (data) => {
+const extractName = type => (data) => {
   if (!data._name) {
-    if (isObject(data) && '' in data) {
-      return flatMap(data, extractName)
+    if (isObject(data)) {
+      return flatMap(data, extractName(type))
     }
     return []
   }
-  const { _name, _japanese_name: jpName, _suffix } = data
-  if (!jpName) {
+  const {
+    _name, _japanese_name: _jpName, _suffix, _api_id: apiId,
+  } = data
+  const isEnemy = type === 'ship-abyssal' || type === 'boss'
+  if (!_jpName || (isEnemy && !apiId)) {
     return []
   }
-  const name = _suffix ? `${_name} ${_suffix}` : _name
+  const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
+  const name = suffix ? `${_name} ${suffix}` : _name
+  const jpName = isEnemy ? fixApiYomi(_jpName) : _jpName
   return [[jpName, name]]
 }
 
@@ -117,7 +126,7 @@ const main = async () => {
       [
         name,
         _(articles)
-          .flatMap(extractName)
+          .flatMap(extractName(name))
           .fromPairs()
           .value(),
       ]))
