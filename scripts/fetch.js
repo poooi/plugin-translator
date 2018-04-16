@@ -78,7 +78,7 @@ const execAsync = (cmd, opts) => new Promise((resolve, reject) => {
   })
 })
 
-const main = async () => {
+const update = async () => {
   // const ns = await bot.getSiteInfoAsync(['namespaces'])
   // const nsData = _(ns.namespaces)
   //   .map(n => ([n.canonical, n.id]))
@@ -201,8 +201,12 @@ const main = async () => {
   }
 }
 
-try {
-  main()
-} catch (e) {
-  console.error(e)
+const main = async () => {
+  try {
+    await update()
+  } catch (e) {
+    console.error(e)
+  }
 }
+
+main()
