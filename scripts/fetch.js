@@ -14,6 +14,7 @@ import fetch from 'node-fetch'
 import ProgressBar from 'progress'
 import yargsParser from 'yargs-parser'
 import chalk from 'chalk'
+import childProcess from 'child_process'
 
 import luaToJson from './lua'
 import config from './mw-config'
@@ -67,6 +68,15 @@ const fetchArticle = async (cat, title) => {
   }
   return readJson(file)
 }
+
+const execAsync = (cmd, opts) => new Promise((resolve, reject) => {
+  childProcess.exec(cmd, opts, (error, stdout, stderr) => {
+    if (error || stderr) {
+      return reject(error || stderr)
+    }
+    return resolve(stdout)
+  })
+})
 
 const main = async () => {
   // const ns = await bot.getSiteInfoAsync(['namespaces'])
@@ -171,6 +181,18 @@ const main = async () => {
   )
 
   await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(...values(result)))
+
+  const gitStatus = await execAsync('git status -s')
+
+  if (gitStatus) {
+    console.log(chalk.red('some files updated, please check and commit then'))
+    const gitDiff = await execAsync('git diff')
+    console.log(gitDiff)
+    // notify error if build fail
+    if (process.env.TRAVIS_EVENT_TYPE === 'cron') {
+      process.exit(1)
+    }
+  }
 }
 
 try {

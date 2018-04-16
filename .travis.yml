@@ -1,0 +1,16 @@
+dist: trusty
+
+language: 'node_js'
+
+node_js:
+  - '9'
+
+install:
+  - npm install -g npm
+
+before_script:
+  - npm install
+
+script:
+  - node update.js --all
+
