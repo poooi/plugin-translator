@@ -78,6 +78,10 @@ const execAsync = (cmd, opts) => new Promise((resolve, reject) => {
   })
 })
 
+class ProgressBarCI {
+  tick = () => {}
+}
+
 const update = async () => {
   // const ns = await bot.getSiteInfoAsync(['namespaces'])
   // const nsData = _(ns.namespaces)
@@ -103,7 +107,7 @@ const update = async () => {
   )
   console.log(chalk.blue(`${total} pages to gather.`))
 
-  const bar = new ProgressBar(chalk.blue('gathering [:bar] :percent :etas'), {
+  const bar = new (process.env.CI ? ProgressBarCI : ProgressBar)(chalk.blue('gathering [:bar] :percent :etas'), {
     complete: '=',
     incomplete: ' ',
     width: 40,

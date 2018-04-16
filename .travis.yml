@@ -5,8 +5,7 @@ language: 'node_js'
 node_js:
   - '9'
 
-install:
-  - npm install -g npm
+if: type IN (cron, pull_request)
 
 before_script:
   - npm install
