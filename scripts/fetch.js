@@ -146,7 +146,7 @@ const main = async () => {
   // merge boss resources into ship-abyssal
   each(Object.keys(config.merge), (source) => {
     const dest = result[config.merge[source]]
-    result[config.merge[source]] = merge(dest, result[source])
+    result[config.merge[source]] = merge({}, dest, result[source])
     result = omit(result, source)
   })
 
@@ -177,10 +177,16 @@ const main = async () => {
 
   await Promise.map(
     Object.keys(result),
-    name => outputJson(path.resolve(__dirname, `../i18n-source/${name}/en-US.json`), result[name], { spaces: 2 }),
+    name => outputJson(
+      path.resolve(__dirname, `../i18n-source/${name}/en-US.json`),
+      result[name],
+      { spaces: 2, replacer: Object.keys(result[name]).sort() }
+    ),
   )
 
-  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), merge(...values(result)))
+  const final = merge({}, ...values(result))
+
+  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
 
   const gitStatus = await execAsync('git status -s')
 
