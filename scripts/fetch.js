@@ -199,7 +199,7 @@ const update = async () => {
     const gitDiff = await execAsync('git diff')
     console.log(gitDiff)
     // notify error if build fail
-    if (process.env.TRAVIS_EVENT_TYPE === 'cron') {
+    if (process.env.CI) {
       process.exit(1)
     }
   }
