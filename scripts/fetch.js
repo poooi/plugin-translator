@@ -5,7 +5,7 @@
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
-import _, { filter, flatMap, isObject, each, merge, omit, values, keyBy } from 'lodash'
+import _, { filter, flatMap, isObject, each, merge, omit, values, keyBy, map, flow } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
@@ -15,6 +15,7 @@ import ProgressBar from 'progress'
 import yargsParser from 'yargs-parser'
 import chalk from 'chalk'
 import childProcess from 'child_process'
+import detectNewline from 'detect-newline'
 
 import luaToJson from './lua'
 import config from './mw-config'
@@ -69,6 +70,24 @@ const fetchArticle = async (cat, title) => {
   return readJson(file)
 }
 
+/**
+ * prettify diff result
+ * @param {string} diff diff result
+ * @returns {string} prettified result
+ */
+const prettifyDiff = flow([
+  str => str.split(detectNewline.graceful(str)),
+  lines => map(lines, line => (/^\+{1}(?!\+)/.test(line) ? chalk.green(line) : line)),
+  lines => map(lines, line => (/^-{1}(?!-)/.test(line) ? chalk.red(line) : line)),
+  lines => lines.join('\n'),
+])
+
+/**
+ * run a command and get result via childProcess.exec
+ * @param {string} cmd command to exec
+ * @param {object} opts exec option to passs
+ * @returns {Promise} stdout result
+ */
 const execAsync = (cmd, opts) => new Promise((resolve, reject) => {
   childProcess.exec(cmd, opts, (error, stdout, stderr) => {
     if (error || stderr) {
@@ -197,7 +216,7 @@ const update = async () => {
   if (gitStatus) {
     console.log(chalk.red('some files updated, please check and commit then'))
     const gitDiff = await execAsync('git diff')
-    console.log(gitDiff)
+    console.log(prettifyDiff(gitDiff))
     // notify error if build fail
     if (process.env.CI) {
       process.exit(1)

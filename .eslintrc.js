@@ -48,7 +48,8 @@ module.exports = {
     {
       files: ['scripts/*.js', 'update.js'],
       rules: {
-        'import/no-extraneous-dependencies': ['error', { 'devDependencies': true }]
+        'import/no-extraneous-dependencies': ['error', { 'devDependencies': true }],
+        'no-console': 'off',
       }
     }
   ],
