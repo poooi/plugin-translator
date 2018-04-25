@@ -4,3 +4,4 @@ update.js
 .eslintrc.js
 .gitignore
 .travis.yml
+.travis

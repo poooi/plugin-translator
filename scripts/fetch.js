@@ -16,6 +16,7 @@ import yargsParser from 'yargs-parser'
 import chalk from 'chalk'
 import childProcess from 'child_process'
 import detectNewline from 'detect-newline'
+import util from 'util'
 
 import luaToJson from './lua'
 import config from './mw-config'
@@ -82,20 +83,7 @@ const prettifyDiff = flow([
   lines => lines.join('\n'),
 ])
 
-/**
- * run a command and get result via childProcess.exec
- * @param {string} cmd command to exec
- * @param {object} opts exec option to passs
- * @returns {Promise} stdout result
- */
-const execAsync = (cmd, opts) => new Promise((resolve, reject) => {
-  childProcess.exec(cmd, opts, (error, stdout, stderr) => {
-    if (error || stderr) {
-      return reject(error || stderr)
-    }
-    return resolve(stdout)
-  })
-})
+const execAsync = util.promisify(childProcess.exec)
 
 class ProgressBarCI {
   tick = () => {}
@@ -211,15 +199,29 @@ const update = async () => {
 
   await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
 
-  const gitStatus = await execAsync('git status -s')
-
+  const { stdout: gitStatus } = await execAsync('git status -s')
+  console.log(gitStatus)
   if (gitStatus) {
     console.log(chalk.red('some files updated, please check and commit then'))
-    const gitDiff = await execAsync('git diff')
+    const { stdout: gitDiff } = await execAsync('git diff')
     console.log(prettifyDiff(gitDiff))
-    // notify error if build fail
+    //  auto commit the changes or notify error in CI
     if (process.env.CI) {
-      process.exit(1)
+      try {
+        const {
+          TRAVIS_EVENT_TYPE, TRAVIS_REPO_SLUG, TRAVIS_BRANCH, TRAVIS_PULL_REQUEST_BRANCH,
+        } = process.env
+        if (TRAVIS_EVENT_TYPE !== 'cron') { // we only auto commit when doing cron job
+          throw new Error('Not in cron mode')
+        }
+
+        await execAsync(`git remote add target git@github.com:${TRAVIS_REPO_SLUG}.git`)
+        await execAsync(`git commit -a --author "Llenn ちゃん <bot@kagami.me>" -m "chore: auto update ${Date.now()}"`)
+        await execAsync(`git push target HEAD:${TRAVIS_PULL_REQUEST_BRANCH || TRAVIS_BRANCH}`)
+      } catch (e) {
+        console.error(e)
+        process.exitCode = 1
+      }
     }
   }
 }
