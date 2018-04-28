@@ -1,7 +1,8 @@
 /**
- * usage: node fetch.js [--all]
+ * usage: node fetch.js [--all] [--concurrency <concurrency>]
  * Supported args:
  * all: if true, redownloads all pages
+ * concurrency: number of concurrent connections during download
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
@@ -22,6 +23,8 @@ import luaToJson from './lua'
 import config from './mw-config'
 
 const args = yargsParser(process.argv.slice(2))
+
+const concurrency = (args.concurrency && parseInt(args.concurrency, 10)) || 5
 
 const bot = new Bot(config.bot)
 promisifyAll(bot)
@@ -90,14 +93,6 @@ class ProgressBarCI {
 }
 
 const update = async () => {
-  // const ns = await bot.getSiteInfoAsync(['namespaces'])
-  // const nsData = _(ns.namespaces)
-  //   .map(n => ([n.canonical, n.id]))
-  //   .fromPairs()
-  //   .value()
-
-  // await outputJson(path.resolve(__dirname, './wikia-namespaces.json'), nsData, { spaces: 2 })
-
   let total = 0
 
   const pages = await Promise.map(
@@ -109,7 +104,7 @@ const update = async () => {
       return [name, modules]
     },
     {
-      concurrency: 5,
+      concurrency,
     },
   )
   console.log(chalk.blue(`${total} pages to gather.`))
@@ -132,13 +127,13 @@ const update = async () => {
           return article
         },
         {
-          concurrency: 1,
+          concurrency,
         },
       )
       return [name, articles]
     },
     {
-      concurrency: 5,
+      concurrency: 1,
     },
   )
 
@@ -202,7 +197,7 @@ const update = async () => {
   const { stdout: gitStatus } = await execAsync('git status -s')
   console.log(gitStatus)
   if (gitStatus) {
-    console.log(chalk.red('some files updated, please check and commit then'))
+    console.log(chalk.red('some files updated, please check and commit them'))
     const { stdout: gitDiff } = await execAsync('git diff')
     console.log(prettifyDiff(gitDiff))
     //  auto commit the changes or notify error in CI
