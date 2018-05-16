@@ -198,7 +198,7 @@ const update = async () => {
   console.log(gitStatus)
   if (gitStatus) {
     console.log(chalk.red('some files updated, please check and commit them'))
-    const { stdout: gitDiff } = await execAsync('git diff')
+    const { stdout: gitDiff } = await execAsync('git diff -- . ":!i18n/en-US.json" ":!package-lock.json"')
     console.log(prettifyDiff(gitDiff))
     //  auto commit the changes or notify error in CI
     if (process.env.CI) {
