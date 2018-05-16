@@ -1,5 +1,7 @@
 {
   "Xmas Select Gift Box": "Xmas Select Gift Box",
+  "お米": "Rice",
+  "お茶": "Tea",
   "お飾り材料": "Decoration Material",
   "ドック開放キー": "Dock Opening Key",
   "ネ式エンジン": "Ne Type Engine",
@@ -24,9 +26,11 @@
   "新型航空兵装資材": "New Model Aerial Armament Material",
   "新型航空機設計図": "New Technology Aircraft Blueprint",
   "書類一式＆指輪": "Marriage Papers and Ring",
+  "梅干": "Umeboshi",
   "母港拡張": "Homeport Expansion",
   "洋上補給": "Underway Replenishment",
   "海峡章": "Strait Medal",
+  "海苔": "Nori",
   "熟練搭乗員": "Skilled Crew Member",
   "燃料": "Fuel",
   "特注家具職人": "Furniture Fairy",
@@ -43,5 +47,6 @@
   "鋼材": "Steel",
   "開発資材": "Development Material",
   "高速修復材": "Instant Repair Material",
-  "高速建造材": "Instant Construction Material"
+  "高速建造材": "Instant Construction Material",
+  "鳳翔さんの夕食券": "Houshou Dinner Ticket"
 }
