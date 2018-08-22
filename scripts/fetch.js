@@ -35,25 +35,56 @@ const fixEnemySuffix = suffix => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, ''
 
 /**
  * extracts Japanese names and English ones from wikia module data
+ * @param {Object} context Context for handling translation conflicts
+ * @param {String} type Wikia module type
  * @param {Object} data Wikia module data
  */
-const extractName = type => (data) => {
+const extractName = (context, type) => (data) => {
+  // handle modules with multiple data parts
   if (!data._name) {
     if (isObject(data)) {
-      return flatMap(data, extractName(type))
+      return flatMap(data, extractName(context, type))
     }
     return []
   }
+  // extract data from the module
   const {
-    _name, _japanese_name: _jpName, _suffix, _api_id: apiId,
+    _name, _japanese_name: _jpName, _suffix, _api_id: _apiId, _id,
   } = data
   const isEnemy = type === 'ship-abyssal' || type === 'boss'
-  if (!_jpName || (isEnemy && !apiId)) {
-    return []
-  }
+  const id = isEnemy && _apiId && _apiId < 1501 ? _apiId + 1000 : _apiId || _id
   const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
   const name = suffix ? `${_name} ${suffix}` : _name
-  const jpName = isEnemy ? fixApiYomi(_jpName) : _jpName
+  const fullEnemyName = isEnemy && (_suffix ? `${_name} ${_suffix}` : _name)
+  const jpName = isEnemy ? _jpName && fixApiYomi(_jpName) : _jpName
+  // not sufficient data
+  if (!jpName || (isEnemy && !id)) {
+    return []
+  }
+  // incomplete module
+  if (!id) {
+    console.log(chalk.red(`no id for ${jpName}`))
+    return [[jpName, name]]
+  }
+  // handle conflicts for this type
+  const typeContext = context[type]
+  if (typeContext[jpName] &&
+    (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)) {
+    // will need to fix first translation later, guaranteed to be the right one by
+    // getPagesInCategoryAsync order and wikia naming conventions
+    typeContext[jpName].fix = true
+    return [[`${jpName}_${id}`, fullEnemyName || name]]
+  }
+  typeContext[jpName] = {
+    id, name, fullEnemyName, type,
+  }
+  // warn about global conflicts
+  const globalContext = context.global
+  if (globalContext[jpName] && globalContext[jpName] !== name) {
+    console.log(chalk.red(`global name conflict for ${jpName}`))
+  }
+  globalContext[jpName] = name
+  // no conflicts
   return [[jpName, name]]
 }
 
@@ -137,15 +168,28 @@ const update = async () => {
     },
   )
 
+  // context for translation conflicts
+  const context = { global: {} }
+
   let result = _(db)
-    .map(([name, articles]) => (
-      [
-        name,
-        _(articles)
-          .flatMap(extractName(name))
-          .fromPairs()
-          .value(),
-      ]))
+    .map(([type, articles]) => {
+      context[type] = context[type] || {}
+      const typeResult = _(articles)
+        .flatMap(extractName(context, type))
+        .fromPairs()
+        .value()
+      // update first matches for all conflicts
+      _(context[type]).forEach(({
+        id, name, fullEnemyName, fix,
+      }, jpName) => {
+        if (fix) {
+          // support no context, currently only adding (?) for enemy equipment
+          typeResult[jpName] = name + (type === 'slotitem-abyssal' ? ' (?)' : '')
+          typeResult[`${jpName}_${id}`] = fullEnemyName || name
+        }
+      })
+      return [type, typeResult]
+    })
     .fromPairs()
     .value()
 
