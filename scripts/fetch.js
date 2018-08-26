@@ -202,8 +202,19 @@ const update = async () => {
 
   // processing misc data
   result = omit(result, 'misc')
-  const resp = await fetch('http://api.kcwiki.moe/start2')
-  const start2 = await resp.json()
+
+  const apiUrl = 'http://api.kcwiki.moe/start2'
+  const apiPath = path.resolve(__dirname, './articles/api_start2.json')
+  const exist = await pathExists(apiPath)
+  let start2
+  if (args.all || !exist) {
+    const resp = await fetch(apiUrl)
+    start2 = await resp.json()
+    outputJson(apiPath, start2)
+  } else {
+    start2 = await readJson(apiPath)
+  }
+
   console.log(chalk.blue('downloaded start2 data.'))
 
   const itemTypes = keyBy(start2.api_mst_slotitem_equiptype, 'api_id')
@@ -234,7 +245,10 @@ const update = async () => {
     ),
   )
 
-  const final = merge({}, ...values(result))
+  const admiralRank = await readJson(path.resolve(__dirname, '../i18n-source/admiral-rank/en-US.json'))
+  const expedition = await readJson(path.resolve(__dirname, '../i18n-source/expedition/en-US.json'))
+
+  const final = merge({}, ...values(result), admiralRank, expedition)
 
   await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
 
