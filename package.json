@@ -4,6 +4,7 @@
   "description": "Translate package into English.",
   "main": "index.js",
   "scripts": {
+    "lint": "eslint --fix --ext .js,.es .",
     "reset": "git clean -f && git checkout .",
     "prepack": "poi-util-transpile --sm --replace",
     "postpublish": "npm run reset",
@@ -55,6 +56,7 @@
     "eslint-plugin-import": "^2.10.0",
     "filenamify": "^2.0.0",
     "fs-extra": "^5.0.0",
+    "husky": "^1.0.0-rc.13",
     "lodash": "^4.17.5",
     "luaparse": "^0.2.1",
     "node-fetch": "^2.1.2",
@@ -62,5 +64,10 @@
     "poi-util-transpile": "^7.6.2",
     "progress": "^2.0.0",
     "yargs-parser": "^10.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
   }
 }
