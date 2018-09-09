@@ -1,8 +1,9 @@
 /**
- * usage: node fetch.js [--all] [--concurrency <concurrency>]
+ * usage: node fetch.js [--all] [--concurrency <concurrency>] [--api <url>]
  * Supported args:
- * all: if true, redownloads all pages
+ * all: if true, redownloads all pages and api_start2 response
  * concurrency: number of concurrent connections during download
+ * api: use custom URL to download api_start2 response
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
@@ -106,6 +107,21 @@ const fetchArticle = async (cat, title) => {
 }
 
 /**
+ * fetch api_start2 response from disk or Internet
+ */
+const fetchApi = async (url) => {
+  const file = path.resolve(__dirname, './articles/api_start2.json')
+  const exist = await pathExists(file)
+  if (args.all || !exist) {
+    const resp = await fetch(url)
+    const data = await resp.json()
+    await outputJson(file, data)
+    return data
+  }
+  return readJson(file)
+}
+
+/**
  * prettify diff result
  * @param {string} diff diff result
  * @returns {string} prettified result
@@ -202,12 +218,11 @@ const update = async () => {
 
   // processing misc data
   result = omit(result, 'misc')
-  const resp = await fetch('http://api.kcwiki.moe/start2')
-  const start2 = await resp.json()
-  console.log(chalk.blue('downloaded start2 data.'))
+  const api = await fetchApi(args.api || 'http://api.kcwiki.moe/start2')
+  console.log(chalk.blue('loaded api data.'))
 
-  const itemTypes = keyBy(start2.api_mst_slotitem_equiptype, 'api_id')
-  const shipTypes = keyBy(start2.api_mst_stype, 'api_id')
+  const itemTypes = keyBy(api.api_mst_slotitem_equiptype, 'api_id')
+  const shipTypes = keyBy(api.api_mst_stype, 'api_id')
 
   const itemTypesWikia = await fetchArticle('misc', 'Module:EquipmentTypes')
   const shipTypesWikia = await fetchArticle('misc', 'Module:ShipTypes')
