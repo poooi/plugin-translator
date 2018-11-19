@@ -1,24 +1,41 @@
 import { JSDOM } from 'jsdom'
-import { fromPairs, map, trim } from 'lodash'
+import { fromPairs, map, trim, keyBy, compact, padStart } from 'lodash'
 import { outputJson } from 'fs-extra'
 import path from 'path'
 import fetch from 'node-fetch'
-
-const fullWidth = fromPairs(map(['０', '１', '２', '３', '４', '５', '６', '７', '８', '９'], (n, i) => [i, n]))
 
 const getUpdateFromWikiaPage = async () => {
   const resp = await fetch('http://kancolle.wikia.com/wiki/Quests')
   const html = await resp.text()
   const dom = new JSDOM(html)
 
-  const rows = dom.window.document.querySelectorAll('tr[class*=quest]:not([class*=details])')
-  const items = map(rows, row =>
-    [
-      trim(row.querySelector('span[lang=ja').textContent).replace(/!/g, '！').replace(/[0-9]/g, match => fullWidth[match]),
-      trim(row.querySelector('i').textContent),
-    ])
+  const resp2 = await fetch('https://kcwikizh.github.io/kcdata/quest/poi.json')
+  const questData = await resp2.json()
+  const known = keyBy(questData, 'wiki_id')
 
-  await outputJson(path.resolve(global.ROOT, './i18n-source/quest/en-US.json'), fromPairs(items), { spaces: 2 })
+  const resp3 = await fetch('https://poi.0u0.moe/dump/quests.csv')
+  const listData = await resp3.text()
+  const questList = fromPairs(map(listData.split('\n').slice(1), line => line.split(',').slice(0, 2)))
+
+  const rows = dom.window.document.querySelectorAll('tr[class*=quest]:not([class*=details])')
+  const items = compact(map(rows, (row) => {
+    // wikia id has no zero padding
+    const id = trim(row.querySelector('td[rowspan="2"]').textContent)
+      .replace(/[0-9]+/, match => padStart(match, 2, '0'))
+
+    const name = trim(row.querySelector('i').textContent)
+
+    if (id in known) {
+      return [`${questList[known[id].game_id]}_${known[id].game_id}`, name]
+    }
+    return null
+  }))
+
+
+  const final = fromPairs(items)
+  console.log(final)
+
+  await outputJson(path.resolve(global.ROOT, './i18n-source/quest/en-US.json'), final, { spaces: 2 })
 }
 
 export default getUpdateFromWikiaPage
