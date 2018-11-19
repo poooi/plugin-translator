@@ -14,6 +14,4 @@ require('@babel/register')({
 
 global.ROOT = __dirname
 
-require('./scripts/mediawiki')
-
-// require('./scripts/web')
+require('./scripts/update')

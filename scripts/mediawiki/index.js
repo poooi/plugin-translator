@@ -7,7 +7,7 @@
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
-import _, { filter, flatMap, isObject, each, merge, omit, values, keyBy, map, flow } from 'lodash'
+import _, { filter, flatMap, isObject, each, merge, omit, keyBy } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
@@ -16,9 +16,6 @@ import fetch from 'node-fetch'
 import ProgressBar from 'progress'
 import yargsParser from 'yargs-parser'
 import chalk from 'chalk'
-import childProcess from 'child_process'
-import detectNewline from 'detect-newline'
-import util from 'util'
 
 import luaToJson from './lua'
 import config from './mw-config'
@@ -121,25 +118,11 @@ const fetchApi = async (url) => {
   return readJson(file)
 }
 
-/**
- * prettify diff result
- * @param {string} diff diff result
- * @returns {string} prettified result
- */
-const prettifyDiff = flow([
-  str => str.split(detectNewline.graceful(str)),
-  lines => map(lines, line => (/^\+{1}(?!\+)/.test(line) ? chalk.green(line) : line)),
-  lines => map(lines, line => (/^-{1}(?!-)/.test(line) ? chalk.red(line) : line)),
-  lines => lines.join('\n'),
-])
-
-const execAsync = util.promisify(childProcess.exec)
-
 class ProgressBarCI {
   tick = () => {}
 }
 
-const update = async () => {
+const getUpdateFromMediaWiki = async () => {
   let total = 0
 
   const pages = await Promise.map(
@@ -240,7 +223,7 @@ const update = async () => {
     .fromPairs()
     .value()
 
-  await Promise.map(
+  return Promise.map(
     Object.keys(result),
     name => outputJson(
       path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`),
@@ -248,44 +231,6 @@ const update = async () => {
       { spaces: 2, replacer: Object.keys(result[name]).sort() }
     ),
   )
-
-  const final = merge({}, ...values(result))
-
-  await outputJson(path.resolve(global.ROOT, './i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
-
-  const { stdout: gitStatus } = await execAsync('git status -s')
-  console.log(gitStatus)
-  if (gitStatus) {
-    console.log(chalk.red('some files updated, please check and commit them'))
-    const { stdout: gitDiff } = await execAsync('git diff -- . ":!i18n/en-US.json" ":!package-lock.json"')
-    console.log(prettifyDiff(gitDiff))
-    //  auto commit the changes or notify error in CI
-    if (process.env.CI) {
-      try {
-        const {
-          TRAVIS_EVENT_TYPE, TRAVIS_REPO_SLUG, TRAVIS_BRANCH, TRAVIS_PULL_REQUEST_BRANCH,
-        } = process.env
-        if (TRAVIS_EVENT_TYPE !== 'cron') { // we only auto commit when doing cron job
-          throw new Error('Not in cron mode')
-        }
-
-        await execAsync(`git remote add target git@github.com:${TRAVIS_REPO_SLUG}.git`)
-        await execAsync(`git commit -a --author "Llenn ちゃん <bot@kagami.me>" -m "chore: auto update ${Date.now()}"`)
-        await execAsync(`git push target HEAD:${TRAVIS_PULL_REQUEST_BRANCH || TRAVIS_BRANCH}`)
-      } catch (e) {
-        console.error(e)
-        process.exitCode = 1
-      }
-    }
-  }
 }
 
-const main = async () => {
-  try {
-    await update()
-  } catch (e) {
-    console.error(e)
-  }
-}
-
-main()
+export default getUpdateFromMediaWiki
