@@ -95,7 +95,7 @@ const extractName = (context, type) => (data) => {
  * @param {String} title Page title
  */
 const fetchArticle = async (cat, title) => {
-  const file = path.resolve(__dirname, `./articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`)
+  const file = path.resolve(global.ROOT, `./scripts/articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`)
   const exist = await pathExists(file)
   if (args.all || !exist) {
     const data = await bot.getArticleAsync(title)
@@ -110,7 +110,7 @@ const fetchArticle = async (cat, title) => {
  * fetch api_start2 response from disk or Internet
  */
 const fetchApi = async (url) => {
-  const file = path.resolve(__dirname, './articles/api_start2.json')
+  const file = path.resolve(global.ROOT, './scripts/articles/api_start2.json')
   const exist = await pathExists(file)
   if (args.all || !exist) {
     const resp = await fetch(url)
@@ -243,7 +243,7 @@ const update = async () => {
   await Promise.map(
     Object.keys(result),
     name => outputJson(
-      path.resolve(__dirname, `../i18n-source/${name}/en-US.json`),
+      path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`),
       result[name],
       { spaces: 2, replacer: Object.keys(result[name]).sort() }
     ),
@@ -251,7 +251,7 @@ const update = async () => {
 
   const final = merge({}, ...values(result))
 
-  await outputJson(path.resolve(__dirname, '../i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
+  await outputJson(path.resolve(global.ROOT, './i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
 
   const { stdout: gitStatus } = await execAsync('git status -s')
   console.log(gitStatus)

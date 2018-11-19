@@ -12,4 +12,6 @@ require('@babel/register')({
   ],
 })
 
-require('./scripts/fetch')
+global.ROOT = __dirname
+
+require('./scripts/mediawiki')

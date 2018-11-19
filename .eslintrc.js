@@ -46,7 +46,7 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['scripts/*.js', 'update.js'],
+      files: ['scripts/**/*.js', 'update.js'],
       rules: {
         'import/no-extraneous-dependencies': ['error', { 'devDependencies': true }],
         'no-console': 'off',
