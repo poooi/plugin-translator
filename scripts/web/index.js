@@ -33,7 +33,6 @@ const getUpdateFromWikiaPage = async () => {
 
 
   const final = fromPairs(items)
-  console.log(final)
 
   await outputJson(path.resolve(global.ROOT, './i18n-source/quest/en-US.json'), final, { spaces: 2 })
 }
