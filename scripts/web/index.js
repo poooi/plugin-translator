@@ -10,7 +10,11 @@ const getUpdateFromWikiaPage = async () => {
   const dom = new JSDOM(html)
 
   const rows = dom.window.document.querySelectorAll('tr[class*=quest]:not([class*=details])')
-  const items = map(rows, row => [trim(row.querySelector('span[lang=ja').textContent), trim(row.querySelector('i').textContent)])
+  const items = map(rows, row =>
+    [
+      trim(row.querySelector('span[lang=ja').textContent).replace(/!/g, '！'),
+      trim(row.querySelector('i').textContent),
+    ])
 
   await outputJson(path.resolve(global.ROOT, './i18n-source/quest/en-US.json'), fromPairs(items), { spaces: 2 })
 }
