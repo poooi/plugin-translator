@@ -7,9 +7,7 @@
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
-import _, {
-  filter, flatMap, isObject, each, merge, omit, keyBy,
-} from 'lodash'
+import _, { filter, flatMap, isObject, each, merge, omit, keyBy } from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
@@ -39,7 +37,7 @@ const fixEnemySuffix = suffix => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, ''
  * @param {String} type Wikia module type
  * @param {Object} data Wikia module data
  */
-const extractName = (context, type) => (data) => {
+const extractName = (context, type) => data => {
   // handle modules with multiple data parts
   if (!data._name) {
     if (isObject(data)) {
@@ -48,9 +46,7 @@ const extractName = (context, type) => (data) => {
     return []
   }
   // extract data from the module
-  const {
-    _name, _japanese_name: _jpName, _suffix, _api_id: _apiId, _id,
-  } = data
+  const { _name, _japanese_name: _jpName, _suffix, _api_id: _apiId, _id } = data
   const isEnemy = type === 'ship-abyssal' || type === 'boss'
   const id = isEnemy && _apiId && _apiId < 1501 ? _apiId + 1000 : _apiId || _id
   const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
@@ -68,15 +64,20 @@ const extractName = (context, type) => (data) => {
   }
   // handle conflicts for this type
   const typeContext = context[type]
-  if (typeContext[jpName]
-    && (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)) {
+  if (
+    typeContext[jpName] &&
+    (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)
+  ) {
     // will need to fix first translation later, guaranteed to be the right one by
     // getPagesInCategoryAsync order and wikia naming conventions
     typeContext[jpName].fix = true
     return [[`${jpName}_${id}`, fullEnemyName || name]]
   }
   typeContext[jpName] = {
-    id, name, fullEnemyName, type,
+    id,
+    name,
+    fullEnemyName,
+    type,
   }
   // warn about global conflicts
   const globalContext = context.global
@@ -94,7 +95,10 @@ const extractName = (context, type) => (data) => {
  * @param {String} title Page title
  */
 const fetchArticle = async (cat, title) => {
-  const file = path.resolve(global.ROOT, `./scripts/articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`)
+  const file = path.resolve(
+    global.ROOT,
+    `./scripts/articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`,
+  )
   const exist = await pathExists(file)
   if (args.all || !exist) {
     const data = await bot.getArticleAsync(title)
@@ -108,7 +112,7 @@ const fetchArticle = async (cat, title) => {
 /**
  * fetch api_start2 response from disk or Internet
  */
-const fetchApi = async (url) => {
+const fetchApi = async url => {
   const file = path.resolve(global.ROOT, './scripts/articles/api_start2.json')
   const exist = await pathExists(file)
   if (args.all || !exist) {
@@ -129,7 +133,7 @@ const getUpdateFromMediaWiki = async () => {
 
   const pages = await Promise.map(
     Object.keys(config.categories),
-    async (name) => {
+    async name => {
       const p = await bot.getPagesInCategoryAsync(config.categories[name])
       const modules = filter(p, q => q.title.startsWith('Module:'))
       total += modules.length
@@ -141,12 +145,15 @@ const getUpdateFromMediaWiki = async () => {
   )
   console.log(chalk.blue(`${total} pages to gather.`))
 
-  const bar = new (process.env.CI ? ProgressBarCI : ProgressBar)(chalk.blue('gathering [:bar] :percent :etas'), {
-    complete: '=',
-    incomplete: ' ',
-    width: 40,
-    total,
-  })
+  const bar = new (process.env.CI ? ProgressBarCI : ProgressBar)(
+    chalk.blue('gathering [:bar] :percent :etas'),
+    {
+      complete: '=',
+      incomplete: ' ',
+      width: 40,
+      total,
+    },
+  )
 
   const db = await Promise.map(
     pages,
@@ -180,9 +187,7 @@ const getUpdateFromMediaWiki = async () => {
         .fromPairs()
         .value()
       // update first matches for all conflicts
-      _(context[type]).forEach(({
-        id, name, fullEnemyName, fix,
-      }, jpName) => {
+      _(context[type]).forEach(({ id, name, fullEnemyName, fix }, jpName) => {
         if (fix) {
           // support no context, currently only adding (?) for enemy equipment
           typeResult[jpName] = name + (type === 'slotitem-abyssal' ? ' (?)' : '')
@@ -195,7 +200,7 @@ const getUpdateFromMediaWiki = async () => {
     .value()
 
   // merge boss resources into ship-abyssal
-  each(Object.keys(config.merge), (source) => {
+  each(Object.keys(config.merge), source => {
     const dest = result[config.merge[source]]
     result[config.merge[source]] = merge({}, dest, result[source])
     result = omit(result, source)
@@ -215,23 +220,21 @@ const getUpdateFromMediaWiki = async () => {
 
   result['slotitem-type'] = _(itemTypesWikia)
     .entries()
-    .map(([id, name]) => ([itemTypes[id]?.api_name, name]))
+    .map(([id, name]) => [itemTypes[id]?.api_name, name])
     .fromPairs()
     .value()
 
   result['ship-type'] = _(shipTypesWikia)
     .entries()
-    .map(([id, name]) => ([shipTypes[id]?.api_name, name]))
+    .map(([id, name]) => [shipTypes[id]?.api_name, name])
     .fromPairs()
     .value()
 
-  return Promise.map(
-    Object.keys(result),
-    name => outputJson(
-      path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`),
-      result[name],
-      { spaces: 2, replacer: Object.keys(result[name]).sort() }
-    ),
+  return Promise.map(Object.keys(result), name =>
+    outputJson(path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`), result[name], {
+      spaces: 2,
+      replacer: Object.keys(result[name]).sort(),
+    }),
   )
 }
 

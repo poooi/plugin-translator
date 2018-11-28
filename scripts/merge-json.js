@@ -9,7 +9,9 @@ const mergeJson = async () => {
   const data = await Promise.map(files, file => readJson(file))
   const final = merge({}, ...data)
 
-  await outputJson(path.resolve(global.ROOT, './i18n/en-US.json'), final, { replacer: Object.keys(final).sort() })
+  await outputJson(path.resolve(global.ROOT, './i18n/en-US.json'), final, {
+    replacer: Object.keys(final).sort(),
+  })
 }
 
 export default mergeJson

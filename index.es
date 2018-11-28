@@ -8,7 +8,7 @@ export const show = false
 
 const i18n = i18next.createInstance()
 
-const readOrIgnoreJsonSync = (p) => {
+const readOrIgnoreJsonSync = p => {
   try {
     return readJsonSync(p)
   } catch (e) {
@@ -25,12 +25,12 @@ export const pluginDidLoad = () => {
   }
 
   const resourceI18n = _(['ko-KR', 'en-US', 'ja-JP', 'zh-CN', 'zh-TW'])
-    .map(locale => ([
+    .map(locale => [
       locale,
       {
         translator: readOrIgnoreJsonSync(path.join(__dirname, 'i18n', `${locale}.json`)),
       },
-    ]))
+    ])
     .fromPairs()
     .value()
 

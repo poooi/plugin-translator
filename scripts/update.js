@@ -6,10 +6,7 @@ import gitCheck from './git-check'
 const main = async () => {
   await getUpdateFromWikiaPage()
   try {
-    await Promise.all([
-      getUpdateFromMediaWiki(),
-      getUpdateFromWikiaPage(),
-    ])
+    await Promise.all([getUpdateFromMediaWiki(), getUpdateFromWikiaPage()])
     await mergeJson()
     await gitCheck()
   } catch (e) {

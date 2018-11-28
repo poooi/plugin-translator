@@ -4,16 +4,15 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['airbnb-base', 'poi-plugin'],
-  plugins: ['babel'],
+  extends: ['airbnb-base', 'poi-plugin', 'prettier'],
+  plugins: ['babel', 'prettier'],
   parser: 'babel-eslint',
   rules: {
-    'comma-dangle': ['error', 'always-multiline'],
-    semi: ['error', 'never'],
     'no-underscore-dangle': 'off',
     'consistent-return': 'off',
     'camelcase': 'off',
     'babel/camelcase': 'error',
+    'prettier/prettier': 'error',
   },
   overrides: [
     {

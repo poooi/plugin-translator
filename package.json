@@ -45,6 +45,8 @@
     "@babel/preset-env": "^7.0.0-beta.44",
     "@babel/preset-stage-0": "^7.0.0-beta.44",
     "@babel/register": "^7.0.0-beta.44",
+    "@commitlint/cli": "^7.2.1",
+    "@commitlint/config-conventional": "^7.1.2",
     "babel-eslint": "^10.0.1",
     "bluebird": "^3.5.3",
     "chalk": "^2.4.1",
@@ -52,23 +54,28 @@
     "eslint": "^5.9.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-config-poi-plugin": "^1.0.0",
+    "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-prettier": "^3.0.0",
     "filenamify": "^2.1.0",
     "fs-extra": "^7.0.1",
     "husky": "^1.2.0",
     "jsdom": "^13.0.0",
+    "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
     "luaparse": "^0.2.1",
     "node-fetch": "^2.3.0",
     "nodemw": "^0.12.2",
     "poi-util-transpile": "^8.2.2",
+    "prettier": "^1.15.2",
     "progress": "^2.0.1",
     "yargs-parser": "^11.1.1"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
     }
   }
 }

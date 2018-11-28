@@ -1,14 +1,9 @@
 import _, { isEmpty, map } from 'lodash'
 import { parse } from 'luaparse'
 
-const literalTypes = [
-  'StringLiteral',
-  'NumericLiteral',
-  'BooleanLiteral',
-  'NilLiteral',
-]
+const literalTypes = ['StringLiteral', 'NumericLiteral', 'BooleanLiteral', 'NilLiteral']
 
-const fold = (o) => {
+const fold = o => {
   if (o.type === 'Chunk') {
     const vs = o.body.map(fold)
     // Assuming that first statement has our table
@@ -25,7 +20,7 @@ const fold = (o) => {
   if (o.type === 'TableConstructorExpression') {
     if (o.fields[0] && o.fields[0].key) {
       const x = _(o.fields)
-        .map((f) => {
+        .map(f => {
           const { k, v } = fold(f)
           return [k, v]
         })
@@ -35,7 +30,7 @@ const fold = (o) => {
 
       return isEmpty(x) ? [] : x
     }
-    return map(o.fields, (f) => {
+    return map(o.fields, f => {
       const v = fold(f)
       return v.__internal ? [v.k, v.v] : v
     })
@@ -55,7 +50,12 @@ const fold = (o) => {
   if (o.type === 'Identifier') {
     return o.name
   }
-  throw new Error(`lua/fold: unhandled type ${o.type}: ${JSON.stringify(o, null, 2).split('\n').slice(0, 50).join('\n')}`)
+  throw new Error(
+    `lua/fold: unhandled type ${o.type}: ${JSON.stringify(o, null, 2)
+      .split('\n')
+      .slice(0, 50)
+      .join('\n')}`,
+  )
 }
 
 const luaToJson = lua => fold(parse(lua, { comments: false }))
