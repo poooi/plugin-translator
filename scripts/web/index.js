@@ -1,5 +1,7 @@
 import { JSDOM } from 'jsdom'
-import { fromPairs, map, trim, keyBy, compact, padStart } from 'lodash'
+import {
+  fromPairs, map, trim, keyBy, compact, padStart,
+} from 'lodash'
 import { outputJson } from 'fs-extra'
 import path from 'path'
 import fetch from 'node-fetch'

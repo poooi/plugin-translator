@@ -7,7 +7,9 @@
  */
 
 import { outputJson, pathExists, readJson } from 'fs-extra'
-import _, { filter, flatMap, isObject, each, merge, omit, keyBy } from 'lodash'
+import _, {
+  filter, flatMap, isObject, each, merge, omit, keyBy,
+} from 'lodash'
 import Promise, { promisifyAll } from 'bluebird'
 import Bot from 'nodemw'
 import path from 'path'
@@ -66,8 +68,8 @@ const extractName = (context, type) => (data) => {
   }
   // handle conflicts for this type
   const typeContext = context[type]
-  if (typeContext[jpName] &&
-    (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)) {
+  if (typeContext[jpName]
+    && (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)) {
     // will need to fix first translation later, guaranteed to be the right one by
     // getPagesInCategoryAsync order and wikia naming conventions
     typeContext[jpName].fix = true
