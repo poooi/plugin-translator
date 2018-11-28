@@ -6,6 +6,7 @@ module.exports = {
   },
   'extends': [
     "airbnb-base",
+    "poi-plugin",
   ],
   'parser': 'babel-eslint',
   'globals': {
