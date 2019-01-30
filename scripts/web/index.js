@@ -22,6 +22,9 @@ const getUpdateFromWikiaPage = async () => {
   const rows = dom.window.document.querySelectorAll('tr[class*=quest]:not([class*=details])')
   const items = compact(
     map(rows, row => {
+      if (!row.querySelector('i') || !row.querySelector('td[rowspan="2"]')) {
+        return null
+      }
       // wikia id has no zero padding
       const id = trim(row.querySelector('td[rowspan="2"]').textContent).replace(/[0-9]+/, match =>
         padStart(match, 2, '0'),
