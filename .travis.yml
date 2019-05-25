@@ -1,19 +1,19 @@
 dist: trusty
-language: node_js
+
+language: 'node_js'
+
 node_js:
-- '10'
+  - '10'
+
+# if: type IN (cron, pull_request)
+
 before_install:
-- if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then bash .travis/cron-setup.sh; fi
+  - 'if [ "$TRAVIS_EVENT_TYPE" = "cron" ]; then bash .travis/cron-setup.sh; fi'
+
 before_script:
-- npm i -g npm
-- npm ci
+  - npm i -g npm
+  - npm ci
+
 script:
-- node update.js --all
-deploy:
-  provider: npm
-  email: moe.pascal@gmail.com
-  api_key:
-    secure: UpEOanE8Q0XGh5fxcqtGI1QnTfRvrdghpVrdAU6aP0pxePojVQ74DQG4EIpR7xdqdFJyQ/ri9U2D7BC2Im1dgObkG6sLhkJw8jAdny/CEi+oKujrrqDMyhyC5w7V49bsog5ERx3WftxdMfOajQi9Mck886MDVYR3ZJ8hWfEkkqGXmE4T3R8pvATvNGq44pkPEMFGHzs7eZLf8x0+HwgtmOioxVqMbT1JrNXjPR7RkfQ068fSIPzBqmghs5qh7xcFkFf227+mXdW92RumAQZ3nOFBqup3vfLgb6IIcFRgaLUqaDuZEij8PlDTVGm41U69hshKrcr9NTaYzFUenLzwEyPgpWsFTt8n3HgwBLYRbPgiztMB8u1w/JUwhZgG4BZ5ajwmlCaIOFi8z9uFOrQkK+1hhxf0IjCbSkP4cydEGtLrWpSHI6aw/qy2W2U0iuiHayh0elQNBEYq6JE8uvWA6YtJn0BJRQeylaKE+orD6VYBLMp/y7ncUPKiY4MgujN4s4NHU4irkkoGu+CqxUYkaYIMo6ebvkb8zfUg+9UTcWF2iVxdV5i1cETYhIv8eY0VeKvdT7hVkooqBfHlcAHmg2kNjRtdwWTTH+8rxg/3ALWOAHufNPpnYvFWEFzna50ZRth/7VPHqGACNV4vWCNYr4rVwsDWBrK1KklcVtnTi1k=
-  on:
-    tags: true
-    repo: poooi/plugin-translator
+  - node update.js --all
+
