@@ -19,7 +19,7 @@ const getUpdateFromWikiaPage = async () => {
     map(listData.split('\n').slice(1), line => line.split(',').slice(0, 2)),
   )
 
-  const rows = dom.window.document.querySelectorAll('tr[class*=quest]:not([class*=details])')
+  const rows = dom.window.document.querySelectorAll('tr[class*=q]:not([class*=details])')
   const items = compact(
     map(rows, row => {
       if (!row.querySelector('i') || !row.querySelector('td[rowspan="2"]')) {
