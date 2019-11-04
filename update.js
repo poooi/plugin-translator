@@ -8,8 +8,11 @@ require('@babel/register')({
         },
       },
     ],
-    require.resolve('@babel/preset-stage-0'),
   ],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    '@babel/plugin-proposal-optional-chaining',
+  ].map(require.resolve),
 })
 
 global.ROOT = __dirname
