@@ -32,6 +32,10 @@ const getUpdateFromWikiaPage = async () => {
 
       const name = trim(row.querySelector('i').textContent)
 
+      if (!name || name === '?') {
+        return
+      }
+
       if (id in known) {
         return [`${questList[known[id].game_id]}_${known[id].game_id}`, name]
       }
