@@ -59,19 +59,14 @@
     "eslint-plugin-babel": "^5.3.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-prettier": "^3.1.1",
-    "filenamify": "^4.1.0",
     "fs-extra": "^8.1.0",
     "husky": "^3.0.9",
-    "jsdom": "^15.2.1",
     "lint-staged": "^9.4.2",
     "lodash": "^4.17.15",
-    "luaparse": "^0.2.1",
+    "lua-json": "^1.0.0",
     "node-fetch": "^2.6.0",
-    "nodemw": "^0.12.2",
     "poi-util-transpile": "^10.3.4",
-    "prettier": "^1.18.2",
-    "progress": "^2.0.3",
-    "yargs-parser": "^16.1.0"
+    "prettier": "^1.18.2"
   },
   "husky": {
     "hooks": {

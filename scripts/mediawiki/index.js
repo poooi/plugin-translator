@@ -1,42 +1,57 @@
-/**
- * usage: node fetch.js [--all] [--concurrency <concurrency>] [--api <url>]
- * Supported args:
- * all: if true, redownloads all pages and api_start2 response
- * concurrency: number of concurrent connections during download
- * api: use custom URL to download api_start2 response
- */
-
-import { outputJson, pathExists, readJson } from 'fs-extra'
-import _, { filter, flatMap, isObject, each, merge, omit, keyBy } from 'lodash'
-import Promise, { promisifyAll } from 'bluebird'
-import Bot from 'nodemw'
+import { outputJson } from 'fs-extra'
+import _, { flatMap, isObject, values } from 'lodash'
+import Promise from 'bluebird'
 import path from 'path'
-import filenamify from 'filenamify'
 import fetch from 'node-fetch'
-import ProgressBar from 'progress'
-import yargsParser from 'yargs-parser'
 import chalk from 'chalk'
+import { parse } from 'lua-json'
 
-import luaToJson from './lua'
-import config from './mw-config'
+const categories = {
+  ship: 'Ship',
+  slotitem: 'Equipment',
+  useitem: 'Item',
+  'ship-abyssal': 'Enemy',
+  'slotitem-abyssal': 'EnemyEquipment',
+}
 
-const args = yargsParser(process.argv.slice(2))
+const getLuaData = async title =>
+  parse(await (await fetch(`https://kancolle.fandom.com/wiki/${title}?action=raw`)).text())
 
-const concurrency = (args.concurrency && parseInt(args.concurrency, 10)) || 5
-
-const bot = new Bot(config.bot)
-promisifyAll(bot)
+const getLuaDataInCategory = async category => {
+  const pages = []
+  const loop = async cont => {
+    const params = {
+      action: 'query',
+      format: 'json',
+      generator: 'allpages',
+      gaplimit: 50,
+      gapnamespace: 828, // Module
+      gapfilterredir: 'nonredirects',
+      gapprefix: `Data/${category}/`,
+      prop: 'revisions',
+      rvprop: 'content',
+    }
+    if (cont) {
+      params.gapcontinue = cont
+    }
+    const url = `https://kancolle.fandom.com/api.php?${_(params)
+      .toPairs()
+      .map(([k, v]) => `${k}=${v}`)
+      .join('&')}`
+    const data = await (await fetch(url)).json()
+    const morePages = values(data.query.pages)
+      .filter(e => !e.title.includes('Vita:') && !e.title.includes('Mist:'))
+      .map(e => parse(e.revisions[0]['*']))
+    morePages.forEach(e => pages.push(e))
+    return data.continue ? loop(data.continue.gapcontinue) : pages
+  }
+  return loop()
+}
 
 const fixApiYomi = string => string.replace(/\s?flagship/i, '').replace(/\s?elite/i, '')
 
 const fixEnemySuffix = suffix => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
 
-/**
- * extracts Japanese names and English ones from wikia module data
- * @param {Object} context Context for handling translation conflicts
- * @param {String} type Wikia module type
- * @param {Object} data Wikia module data
- */
 const extractName = (context, type) => data => {
   // handle modules with multiple data parts
   if (!data._name) {
@@ -47,7 +62,7 @@ const extractName = (context, type) => data => {
   }
   // extract data from the module
   const { _name, _japanese_name: _jpName, _suffix, _api_id: _apiId, _id } = data
-  const isEnemy = type === 'ship-abyssal' || type === 'boss'
+  const isEnemy = type === 'ship-abyssal'
   const id = isEnemy && _apiId && _apiId < 1501 ? _apiId + 1000 : _apiId || _id
   const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
   const name = suffix ? `${_name} ${suffix}` : _name
@@ -69,7 +84,7 @@ const extractName = (context, type) => data => {
     (typeContext[jpName].name !== name || typeContext[jpName].fullEnemyName !== fullEnemyName)
   ) {
     // will need to fix first translation later, guaranteed to be the right one by
-    // getPagesInCategoryAsync order and wikia naming conventions
+    // getLuaDataInCategory order and wikia naming conventions
     typeContext[jpName].fix = true
     return [[`${jpName}_${id}`, fullEnemyName || name]]
   }
@@ -89,97 +104,16 @@ const extractName = (context, type) => data => {
   return [[jpName, name]]
 }
 
-/**
- * fetch an wikia article from disk or Internet, controlled by node args
- * @param {String} cat Category
- * @param {String} title Page title
- */
-const fetchArticle = async (cat, title) => {
-  const file = path.resolve(
-    global.ROOT,
-    `./scripts/articles/${cat}/${filenamify(title.replace('Module:', ''))}.json`,
-  )
-  const exist = await pathExists(file)
-  if (args.all || !exist) {
-    const data = await bot.getArticleAsync(title)
-    const article = luaToJson(data)
-    await outputJson(file, article, { spaces: 2 })
-    return article
-  }
-  return readJson(file)
-}
-
-/**
- * fetch api_start2 response from disk or Internet
- */
-const fetchApi = async url => {
-  const file = path.resolve(global.ROOT, './scripts/articles/api_start2.json')
-  const exist = await pathExists(file)
-  if (args.all || !exist) {
-    const resp = await fetch(url)
-    const data = await resp.json()
-    await outputJson(file, data)
-    return data
-  }
-  return readJson(file)
-}
-
-class ProgressBarCI {
-  tick = () => {}
-}
-
 const getUpdateFromMediaWiki = async () => {
-  let total = 0
-
-  const pages = await Promise.map(
-    Object.keys(config.categories),
-    async name => {
-      const p = await bot.getPagesInCategoryAsync(config.categories[name])
-      const modules = filter(p, q => q.title.startsWith('Module:'))
-      total += modules.length
-      return [name, modules]
-    },
-    {
-      concurrency,
-    },
-  )
-  console.log(chalk.blue(`${total} pages to gather.`))
-
-  const bar = new (process.env.CI ? ProgressBarCI : ProgressBar)(
-    chalk.blue('gathering [:bar] :percent :etas'),
-    {
-      complete: '=',
-      incomplete: ' ',
-      width: 40,
-      total,
-    },
-  )
-
-  const db = await Promise.map(
-    pages,
-    async ([name, p]) => {
-      const articles = await Promise.map(
-        p,
-        async ({ title }) => {
-          const article = await fetchArticle(name, title)
-          bar.tick(1)
-          return article
-        },
-        {
-          concurrency,
-        },
-      )
-      return [name, articles]
-    },
-    {
-      concurrency: 1,
-    },
-  )
+  const db = await Promise.map(Object.keys(categories), async name => [
+    name,
+    await getLuaDataInCategory(categories[name]),
+  ])
 
   // context for translation conflicts
   const context = { global: {} }
 
-  let result = _(db)
+  const result = _(db)
     .map(([type, articles]) => {
       context[type] = context[type] || {}
       const typeResult = _(articles)
@@ -199,36 +133,8 @@ const getUpdateFromMediaWiki = async () => {
     .fromPairs()
     .value()
 
-  // merge boss resources into ship-abyssal
-  each(Object.keys(config.merge), source => {
-    const dest = result[config.merge[source]]
-    result[config.merge[source]] = merge({}, dest, result[source])
-    result = omit(result, source)
-  })
-
-  // processing misc data
-  result = omit(result, 'misc')
-  const api = await fetchApi(args.api || 'http://api.kcwiki.moe/start2')
-  console.log(chalk.blue('loaded api data.'))
-
-  const itemTypes = keyBy(api.api_mst_slotitem_equiptype, 'api_id')
-  const shipTypes = keyBy(api.api_mst_stype, 'api_id')
-
-  const itemTypesWikia = await fetchArticle('misc', 'Module:EquipmentTypes')
-  const shipTypesWikia = await fetchArticle('misc', 'Module:ShipTypes')
-  console.log(chalk.blue('gathered types data.'))
-
-  result['slotitem-type'] = _(itemTypesWikia)
-    .entries()
-    .map(([id, name]) => [itemTypes[id]?.api_name, name])
-    .fromPairs()
-    .value()
-
-  result['ship-type'] = _(shipTypesWikia)
-    .entries()
-    .map(([id, name]) => [shipTypes[id]?.api_name, name])
-    .fromPairs()
-    .value()
+  result['slotitem-type'] = await getLuaData('Module:Data/EquipmentTypeNames')
+  result['ship-type'] = await getLuaData('Module:Data/ShipTypeNames')
 
   return Promise.map(Object.keys(result), name =>
     outputJson(path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`), result[name], {

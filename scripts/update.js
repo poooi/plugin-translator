@@ -1,11 +1,10 @@
 import getUpdateFromMediaWiki from './mediawiki'
-// import getUpdateFromWikiaPage from './web'
 import mergeJson from './merge-json'
 import gitCheck from './git-check'
 
 const main = async () => {
   try {
-    await Promise.all([getUpdateFromMediaWiki()])
+    await getUpdateFromMediaWiki()
     await mergeJson()
     await gitCheck()
   } catch (e) {
