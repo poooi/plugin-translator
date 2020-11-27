@@ -24,6 +24,10 @@ const mapping: Record<Category, string> = {
   [Category.EnemyEquipment]: 'slotitem-abyssal',
 }
 
+/**
+ * Downloads data on one page and converts to JSON
+ * @param title data/page name
+ */
 const getLuaData = async (title: string): Promise<Record<string, string>> =>
   parse(
     await (await fetch(`https://kancolle.fandom.com/wiki/${title}?action=raw`)).text(),
@@ -64,6 +68,12 @@ interface Page {
   _id: number
 }
 
+/**
+ * Downloads multiple-page lua data and converts to JSON
+ * the return data could be 2 format: entry[]
+ * or Record<string, entry>, e.g. for a ship it will be { "": ..., "kai": ..., "kai2": ...}
+ * @param category data category name
+ */
 const getLuaDataInCategory = async (
   category: Category,
 ): Promise<(Page | Record<string, Page>)[]> => {
@@ -100,8 +110,16 @@ const getLuaDataInCategory = async (
   return pages
 }
 
+/**
+ * Removes `flagship` and `elite` from enemy ship names because they're not translated
+ * @param name ship name
+ */
 const fixApiYomi = (name: string) => name.replace(/\s?flagship/i, '').replace(/\s?elite/i, '')
 
+/**
+ * removes roman number suffix for enemy ship names because they're not translated
+ * @param suffix ship name
+ */
 const fixEnemySuffix = (suffix: string) => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
 
 interface ContextItem {
@@ -117,6 +135,12 @@ type ResultContext = { global: Record<string, string> } & Record<
   Record<string, ContextItem>
 >
 
+/**
+ * Gets the item name from data
+ * @param context the existing results for avoiding conflicts, context.global is a simple record of collected translations,
+ *                and context[Category] contains more information
+ * @param type entity type
+ */
 const extractName = (context: ResultContext, type: Category) => (
   data: Page | Record<string, Page>,
 ): [string, string][] => {
@@ -170,6 +194,9 @@ const extractName = (context: ResultContext, type: Category) => (
   return [[jpName, name]]
 }
 
+/**
+ * Downloads data from wikia
+ */
 const getUpdateFromMediaWiki = async (): Promise<void[]> => {
   const db = await Bluebird.map(Object.keys(Category), async (name) => [
     name,
