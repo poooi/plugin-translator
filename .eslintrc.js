@@ -21,7 +21,6 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'consistent-return': 'off',
     camelcase: 'off',
-    'babel/camelcase': 'error',
     'prettier/prettier': 'error',
   },
   overrides: [
