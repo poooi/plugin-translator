@@ -29,6 +29,7 @@ jobs:
       run: |
         npm run lint
         npm run typecheck
+        npm test
 
     - name: Check content updates
       run: |
