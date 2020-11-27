@@ -11,6 +11,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
     'prettier',
     'prettier/@typescript-eslint',
+    'plugin:import/typescript',
   ],
   plugins: ['prettier', '@typescript-eslint'],
   parser: '@typescript-eslint/parser',
@@ -25,10 +26,11 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['scripts/**/*.js', 'update.js'],
+      files: ['scripts/**/*.ts', 'update.ts'],
       rules: {
         'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
         'no-console': 'off',
+        'import/extensions': 'off',
       },
     },
   ],
