@@ -8,6 +8,7 @@
     "reset": "git clean -f && git checkout .",
     "prepack": "poi-util-transpile --sm --replace",
     "postpublish": "npm run reset",
+    "typescheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
