@@ -4,9 +4,19 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['airbnb-base', 'poi-plugin', 'prettier'],
-  plugins: ['babel', 'prettier'],
-  parser: 'babel-eslint',
+  extends: [
+    'airbnb-base',
+    'poi-plugin',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'prettier',
+    'prettier/@typescript-eslint',
+  ],
+  plugins: ['prettier', '@typescript-eslint'],
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: './tsconfig.json',
+  },
   rules: {
     'no-underscore-dangle': 'off',
     'consistent-return': 'off',
