@@ -14,12 +14,12 @@ const categories = {
   'slotitem-abyssal': 'EnemyEquipment',
 }
 
-const getLuaData = async title =>
+const getLuaData = async (title) =>
   parse(await (await fetch(`https://kancolle.fandom.com/wiki/${title}?action=raw`)).text())
 
-const getLuaDataInCategory = async category => {
+const getLuaDataInCategory = async (category) => {
   const pages = []
-  const loop = async cont => {
+  const loop = async (cont) => {
     const params = {
       action: 'query',
       format: 'json',
@@ -40,19 +40,19 @@ const getLuaDataInCategory = async category => {
       .join('&')}`
     const data = await (await fetch(url)).json()
     const morePages = values(data.query.pages)
-      .filter(e => !e.title.includes('Vita:') && !e.title.includes('Mist:'))
-      .map(e => parse(e.revisions[0]['*']))
-    morePages.forEach(e => pages.push(e))
+      .filter((e) => !e.title.includes('Vita:') && !e.title.includes('Mist:'))
+      .map((e) => parse(e.revisions[0]['*']))
+    morePages.forEach((e) => pages.push(e))
     return data.continue ? loop(data.continue.gapcontinue) : pages
   }
   return loop()
 }
 
-const fixApiYomi = string => string.replace(/\s?flagship/i, '').replace(/\s?elite/i, '')
+const fixApiYomi = (string) => string.replace(/\s?flagship/i, '').replace(/\s?elite/i, '')
 
-const fixEnemySuffix = suffix => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
+const fixEnemySuffix = (suffix) => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
 
-const extractName = (context, type) => data => {
+const extractName = (context, type) => (data) => {
   // handle modules with multiple data parts
   if (!data._name) {
     if (isObject(data)) {
@@ -105,7 +105,7 @@ const extractName = (context, type) => data => {
 }
 
 const getUpdateFromMediaWiki = async () => {
-  const db = await Promise.map(Object.keys(categories), async name => [
+  const db = await Promise.map(Object.keys(categories), async (name) => [
     name,
     await getLuaDataInCategory(categories[name]),
   ])
@@ -116,10 +116,7 @@ const getUpdateFromMediaWiki = async () => {
   const result = _(db)
     .map(([type, articles]) => {
       context[type] = context[type] || {}
-      const typeResult = _(articles)
-        .flatMap(extractName(context, type))
-        .fromPairs()
-        .value()
+      const typeResult = _(articles).flatMap(extractName(context, type)).fromPairs().value()
       // update first matches for all conflicts
       _(context[type]).forEach(({ id, name, fullEnemyName, fix }, jpName) => {
         if (fix) {
@@ -136,7 +133,7 @@ const getUpdateFromMediaWiki = async () => {
   result['slotitem-type'] = await getLuaData('Module:Data/EquipmentTypeNames')
   result['ship-type'] = await getLuaData('Module:Data/ShipTypeNames')
 
-  return Promise.map(Object.keys(result), name =>
+  return Promise.map(Object.keys(result), (name) =>
     outputJson(path.resolve(global.ROOT, `./i18n-source/${name}/en-US.json`), result[name], {
       spaces: 2,
       replacer: Object.keys(result[name]).sort(),

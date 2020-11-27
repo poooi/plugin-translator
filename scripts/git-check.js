@@ -10,10 +10,10 @@ import childProcess from 'child_process'
  * @returns {string} prettified result
  */
 const prettifyDiff = flow([
-  str => str.split(detectNewline.graceful(str)),
-  lines => map(lines, line => (/^\+{1}(?!\+)/.test(line) ? chalk.green(line) : line)),
-  lines => map(lines, line => (/^-{1}(?!-)/.test(line) ? chalk.red(line) : line)),
-  lines => lines.join('\n'),
+  (str) => str.split(detectNewline.graceful(str)),
+  (lines) => map(lines, (line) => (/^\+{1}(?!\+)/.test(line) ? chalk.green(line) : line)),
+  (lines) => map(lines, (line) => (/^-{1}(?!-)/.test(line) ? chalk.red(line) : line)),
+  (lines) => lines.join('\n'),
 ])
 
 const execAsync = util.promisify(childProcess.exec)

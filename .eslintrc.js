@@ -10,7 +10,7 @@ module.exports = {
   rules: {
     'no-underscore-dangle': 'off',
     'consistent-return': 'off',
-    'camelcase': 'off',
+    camelcase: 'off',
     'babel/camelcase': 'error',
     'prettier/prettier': 'error',
   },

@@ -6,7 +6,7 @@ import { merge } from 'lodash'
 
 const mergeJson = async () => {
   const files = glob.sync(path.resolve(global.ROOT, './i18n-source/**/en-US.json'))
-  const data = await Promise.map(files, file => readJson(file))
+  const data = await Promise.map(files, (file) => readJson(file))
   const final = merge({}, ...data)
 
   await outputJson(path.resolve(global.ROOT, './i18n/en-US.json'), final, {
