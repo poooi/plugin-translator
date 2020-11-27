@@ -32,4 +32,4 @@ jobs:
 
     - name: Check content updates
       run: |
-        npx ts-node update.js
+        npx ts-node update.ts
