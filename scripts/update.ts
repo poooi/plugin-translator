@@ -6,7 +6,7 @@ const main = async (): Promise<void> => {
   try {
     await getUpdateFromMediaWiki()
     await mergeJson()
-    // await gitCheck()
+    await gitCheck()
   } catch (e) {
     console.log(e)
     process.exitCode = 1
