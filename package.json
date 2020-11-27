@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint --fix --ext .ts,.tsx .",
     "reset": "git clean -f && git checkout .",
-    "prepack": "poi-util-transpile --sm --replace",
+    "prepack": "tsc",
     "postpublish": "npm run reset",
     "typecheck": "tsc --noEmit",
     "test": "jest --coverage"
