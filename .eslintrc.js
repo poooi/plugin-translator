@@ -25,13 +25,13 @@ module.exports = {
     'prettier/prettier': 'error',
     'no-shadow': 'off',
     'no-console': 'off',
+    'import/extensions': 'off',
   },
   overrides: [
     {
       files: ['scripts/**/*.ts', 'update.ts'],
       rules: {
         'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-        'import/extensions': 'off',
       },
     },
   ],

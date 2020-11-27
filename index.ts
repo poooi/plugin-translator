@@ -19,7 +19,7 @@ declare global {
   interface Window {
     language: string
     isMain: boolean
-    i18n: {
+    i18n?: {
       resources?: PoiI18nResources
       translator?: PoiI18nResources
     }
@@ -30,6 +30,7 @@ const readOrIgnoreJsonSync = (p: string): Record<string, string> => {
   try {
     return readJsonSync(p) as Record<string, string>
   } catch (e) {
+    console.log(e)
     return {}
   }
 }
