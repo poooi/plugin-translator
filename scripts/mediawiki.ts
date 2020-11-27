@@ -85,7 +85,7 @@ const getLuaDataInCategory = async (
       params.gapcontinue = cont
     }
     const url = new URL('/api.php', 'https://kancolle.fandom.com')
-    url.search = qs.stringify(params as Record<any, any>)
+    url.search = qs.stringify(params as Record<string, any>) // eslint-disable-line @typescript-eslint/no-explicit-any
     const data: MediaWikiAPIData = (await (await fetch(url.toString())).json()) as MediaWikiAPIData
 
     const morePages = values(data.query.pages)

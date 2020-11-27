@@ -24,13 +24,13 @@ module.exports = {
     camelcase: 'off',
     'prettier/prettier': 'error',
     'no-shadow': 'off',
+    'no-console': 'off',
   },
   overrides: [
     {
       files: ['scripts/**/*.ts', 'update.ts'],
       rules: {
         'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-        'no-console': 'off',
         'import/extensions': 'off',
       },
     },
