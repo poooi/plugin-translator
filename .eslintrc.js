@@ -23,6 +23,7 @@ module.exports = {
     'consistent-return': 'off',
     camelcase: 'off',
     'prettier/prettier': 'error',
+    'no-shadow': 'off',
   },
   overrides: [
     {
