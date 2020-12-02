@@ -215,7 +215,7 @@ const getUpdateFromMediaWiki = async (): Promise<void[]> => {
         .value()
       // update first matches for all conflicts
       _(context[type]).forEach(({ id, name, fullEnemyName, fix }, jpName) => {
-        if (fix) {
+        if (fix || (name && fullEnemyName && name !== fullEnemyName)) {
           // support no context, currently only adding (?) for enemy equipment
           typeResult[jpName] = name + (type === Category.EnemyEquipment ? ' (?)' : '')
           typeResult[`${jpName}_${id}`] = fullEnemyName || name
