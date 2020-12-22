@@ -120,7 +120,10 @@ const fixApiYomi = (name: string) => name.replace(/\s?flagship/i, '').replace(/\
  * removes roman number suffix for enemy ship names because they're not translated
  * @param suffix ship name
  */
-const fixEnemySuffix = (suffix: string) => fixApiYomi(suffix).replace(/\s?[IVX][IVX]*/, '')
+const fixEnemySuffix = (suffix: string) =>
+  fixApiYomi(suffix)
+    .replace(/\s?[IVX][IVX]*/, '')
+    .replace('- Damaged', 'Damaged')
 
 interface ContextItem {
   id: number
@@ -157,7 +160,8 @@ const extractName = (context: ResultContext, type: Category) => (
   const id = isEnemy && _apiId && _apiId < 1501 ? _apiId + 1000 : _apiId || _id
   const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
   const name = suffix ? `${_name} ${suffix}` : _name
-  const fullEnemyName = isEnemy && (_suffix ? `${_name} ${_suffix}` : _name)
+  const fullEnemyName =
+    isEnemy && (_suffix ? `${_name} ${_suffix.replace('- Damaged', 'Damaged')}` : _name)
   const jpName = isEnemy ? _jpName && fixApiYomi(_jpName) : _jpName
   // not sufficient data
   if (!jpName || (isEnemy && !id)) {
@@ -215,7 +219,7 @@ const getUpdateFromMediaWiki = async (): Promise<void[]> => {
         .value()
       // update first matches for all conflicts
       _(context[type]).forEach(({ id, name, fullEnemyName, fix }, jpName) => {
-        if (fix) {
+        if (fix || (name && fullEnemyName && name !== fullEnemyName)) {
           // support no context, currently only adding (?) for enemy equipment
           typeResult[jpName] = name + (type === Category.EnemyEquipment ? ' (?)' : '')
           typeResult[`${jpName}_${id}`] = fullEnemyName || name
