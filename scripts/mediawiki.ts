@@ -64,6 +64,7 @@ interface Page {
   _name: string
   _japanese_name: string
   _suffix: string | false
+  _display_suffix?: string
   _api_id: number
   _id: number
 }
@@ -128,6 +129,7 @@ const fixEnemySuffix = (suffix: string) =>
 interface ContextItem {
   id: number
   name: string
+  baseName: string
   fullEnemyName: string | false
   type: Category
   fix?: boolean
@@ -155,10 +157,17 @@ const extractName = (context: ResultContext, type: Category) => (
     return []
   }
   // extract data from the module
-  const { _name, _japanese_name: _jpName, _suffix, _api_id: _apiId, _id } = data as Page
+  const {
+    _name,
+    _japanese_name: _jpName,
+    _suffix,
+    _display_suffix,
+    _api_id: _apiId,
+    _id,
+  } = data as Page
   const isEnemy = type === Category.Enemy
   const id = isEnemy && _apiId && _apiId < 1501 ? _apiId + 1000 : _apiId || _id
-  const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _suffix
+  const suffix = isEnemy ? _suffix && fixEnemySuffix(_suffix) : _display_suffix || _suffix
   const name = suffix ? `${_name} ${suffix}` : _name
   const fullEnemyName =
     isEnemy && (_suffix ? `${_name} ${_suffix.replace('- Damaged', 'Damaged')}` : _name)
@@ -185,6 +194,7 @@ const extractName = (context: ResultContext, type: Category) => (
   typeContext[jpName] = {
     id,
     name,
+    baseName: _name,
     fullEnemyName,
     type,
   }
@@ -218,10 +228,11 @@ const getUpdateFromMediaWiki = async (): Promise<void[]> => {
         .fromPairs()
         .value()
       // update first matches for all conflicts
-      _(context[type]).forEach(({ id, name, fullEnemyName, fix }, jpName) => {
+      _(context[type]).forEach(({ id, name, baseName, fullEnemyName, fix }, jpName) => {
         if (fix || (name && fullEnemyName && name !== fullEnemyName)) {
-          // support no context, currently only adding (?) for enemy equipment
-          typeResult[jpName] = name + (type === Category.EnemyEquipment ? ' (?)' : '')
+          // support no context, currently only adding (?) for enemy equipment, also Souya needs a kludge
+          typeResult[jpName] =
+            (jpName === '宗谷' ? baseName : name) + (type === Category.EnemyEquipment ? ' (?)' : '')
           typeResult[`${jpName}_${id}`] = fullEnemyName || name
         }
       })
