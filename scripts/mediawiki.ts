@@ -123,7 +123,7 @@ const fixApiYomi = (name: string) => name.replace(/\s?flagship/i, '').replace(/\
  */
 const fixEnemySuffix = (suffix: string) =>
   fixApiYomi(suffix)
-    .replace(/\s?[IVX][IVX]*/, '')
+    .replace(/\s[IVX][IVX]*$/, '')
     .replace('- Damaged', 'Damaged')
 
 interface ContextItem {
