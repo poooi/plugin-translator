@@ -6,7 +6,7 @@ Translate ships and items in game into English.
 
 ## Data
 
-English translation data make use of [Kantai Collection English Wikia](http://kancolle.wikia.com/)'s content under CC-BY-SA license.
+English translation data make use of [Kantai Collection English Wiki](https://en.kancollewiki.net/)'s content under CC BY-NC license.
 
 ## Updating data
 
