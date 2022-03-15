@@ -29,9 +29,10 @@ const mapping: Record<Category, string> = {
  * @param title data/page name
  */
 const getLuaData = async (title: string): Promise<Record<string, string>> =>
-  parse(
-    await (await fetch(`https://kancolle.fandom.com/wiki/${title}?action=raw`)).text(),
-  ) as Record<string, string>
+  parse(await (await fetch(`https://en.kancollewiki.net/${title}?action=raw`)).text()) as Record<
+    string,
+    string
+  >
 
 interface MediaWikiAPIParams {
   action: string
@@ -95,7 +96,7 @@ const getLuaDataInCategory = async (
     if (cont) {
       params.gapcontinue = cont
     }
-    const url = new URL('/api.php', 'https://kancolle.fandom.com')
+    const url = new URL('w/api.php', 'https://en.kancollewiki.net')
     url.search = qs.stringify(params as Record<string, any>) // eslint-disable-line @typescript-eslint/no-explicit-any
     const data: MediaWikiAPIData = (await (await fetch(url.toString())).json()) as MediaWikiAPIData
 
@@ -125,6 +126,7 @@ const fixEnemySuffix = (suffix: string) =>
   fixApiYomi(suffix)
     .replace(/\s[IVX][IVX]*$/, '')
     .replace('- Damaged', 'Damaged')
+    .trim()
 
 interface ContextItem {
   id: number
