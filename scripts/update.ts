@@ -1,10 +1,10 @@
-import getUpdateFromMediaWiki from './mediawiki'
+import getUpdateFromKC3 from './kc3'
 import mergeJson from './merge-json'
 import gitCheck from './git-check'
 
 const main = async (): Promise<void> => {
   try {
-    await getUpdateFromMediaWiki()
+    await getUpdateFromKC3()
     await mergeJson()
     await gitCheck()
   } catch (e) {
